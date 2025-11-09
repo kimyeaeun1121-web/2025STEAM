@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>2025 STEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;
+  --accent:#0a84ff;
+  --muted:#666;
+  --nav-h:64px;
+  --radius:14px;
+  --hero-bg:linear-gradient(135deg, #0a84ff, #00bfff);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%; font-family:'Inter',sans-serif; background:var(--bg); color:#111;}
+.app{min-height:100vh; padding-bottom:calc(var(--nav-h)+12px);}
+a{text-decoration:none; color:inherit;}
+/* 헤더 */
+header{text-align:center; padding:14px 16px; border-bottom:1px solid #f0f0f0;}
+.site-title{font-weight:700; font-size:24px; margin-bottom:4px;}
+.subtitle{font-size:14px; color:var(--muted);}
+
+/* Hero 섹션 */
+.hero{
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  height:200px; color:#fff; text-align:center; border-radius:16px;
+  background:var(--hero-bg); margin:16px 0; box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
+.hero h1{font-size:26px; margin-bottom:8px; text-shadow: 1px 1px 4px rgba(0,0,0,0.3);}
+.hero p{font-size:14px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+
+/* 섹션 */
+main{padding:18px; max-width:520px; margin:0 auto;}
+section{opacity:0; transform:translateY(20px); transition: all 0.6s ease; margin-bottom:20px;}
+section.active{opacity:1; transform:translateY(0);}
+h1{font-size:22px; margin-bottom:12px;}
+p{color:var(--muted); line-height:1.5; margin-bottom:12px;}
+
+/* 카드 */
+.card{
+  background:#fff; border-radius:var(--radius); padding:16px; margin-bottom:16px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.08); transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover{
+  transform: translateY(-4px);
+  box-shadow:0 12px 30px rgba(0,0,0,0.12);
+}
+.card h3{color:var(--accent); margin-bottom:6px;}
+
+/* 버튼 */
+.btn{
+  display:inline-block; padding:10px 16px; background:var(--accent); color:#fff; border-radius:10px; font-weight:600;
+  transition: background 0.3s ease, transform 0.3s ease;
+  margin-top:8px;
+}
+.btn:hover{background:#0066cc; transform:translateY(-2px);}
+
+/* GPTI iframe */
+.gpti-frame{width:100%; height:60vh; border:0; border-radius:12px; box-shadow: inset 0 0 0 1px #f0f0f0; margin-bottom:12px;}
+
+/* 하단 네비게이션 */
+nav.bottom-nav{
+  position:fixed; left:12px; right:12px; bottom:12px; height:var(--nav-h);
+  background:#fff; border-radius:16px; display:flex; justify-content:space-around; align-items:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08); padding:6px;
+}
+.nav-item{flex:1; text-align:center; text-decoration:none; color:var(--muted); font-size:12px; padding:8px 6px; border-radius:10px;}
+.nav-item .icon{display:block; font-size:18px; margin-bottom:4px;}
+.nav-item.active{color:var(--accent); font-weight:600;}
+
+/* fade-in 애니메이션 (스크롤용) */
+[data-animate]{opacity:0; transform:translateY(20px); transition: all 0.6s ease;}
+[data-animate].visible{opacity:1; transform:translateY(0);}
+
+/* 반응형 */
+@media(min-width:560px){main{max-width:520px;} nav.bottom-nav{left:50%; transform:translateX(-50%); max-width:520px;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="site-title">2025 STEAM</div>
+    <div class="subtitle">창의 · 융합 · 체험</div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <div class="hero" data-animate>
+      <h1>환영합니다!</h1>
+      <p>2025 STEAM 공식 모바일 홈페이지 — 창의와 융합을 경험하세요</p>
+      <a href="#home" class="btn">홈으로 이동</a>
+    </div>
+
+    <!-- 이벤트 -->
+    <section id="events" data-animate>
+      <h1>이벤트</h1>
+      <div class="card">
+        <h3>다음 행사</h3>
+        <p>2025-11-20 온라인 해커톤</p>
+        <a href="#" class="btn">참가하기</a>
+      </div>
+      <div class="card">
+        <h3>지난 행사</h3>
+        <p>2025-09-05 워크숍 후기</p>
+      </div>
+    </section>
+
+    <!-- 홈 -->
+    <section id="home" class="active" data-animate>
+      <h1>홈</h1>
+      <p>모바일 최적화된 2025 STEAM 공식 홈페이지입니다. 메뉴를 통해 다양한 콘텐츠로 이동하세요.</p>
+      <div class="card">
+        <h3>공지</h3>
+        <p>곧 진행될 이벤트와 소식을 확인해보세요.</p>
+        <a href="#events" class="btn">이벤트 보기</a>
+      </div>
+    </section>
+
+    <!-- 테스트 -->
+    <section id="test" data-animate>
+      <h1>테스트 페이지</h1>
+      <p>여기는 테스트용 섹션입니다. 자유롭게 콘텐츠를 추가하세요.</p>
+      <div class="card">
+        <h3>샘플 카드</h3>
+        <p>카드 형태의 콘텐츠를 넣어 시각적으로 구분할 수 있습니다.</p>
+      </div>
+    </section>
+
+    <!-- GPTI -->
+    <section id="gpti" data-animate>
+      <h1>GPTI</h1>
+      <iframe class="gpti-frame" src="https://laranahyun-hub.github.io/GPTI/" title="GPTI"></iframe>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px">
+        열리지 않으면 <a href="https://laranahyun-hub.github.io/GPTI/" target="_blank" rel="noopener" style="color:var(--accent)">여기서 바로 열기</a>
+      </p>
+    </section>
+  </main>
+</div>
+
+<!-- 하단 네비게이션 -->
+<nav class="bottom-nav" role="navigation" aria-label="Bottom navigation">
+  <a href="#events" class="nav-item" data-target="events"><span class="icon">🎟️</span>이벤트</a>
+  <a href="#home" class="nav-item active" data-target="home"><span class="icon">🏠</span>홈</a>
+  <a href="#test" class="nav-item" data-target="test"><span class="icon">🧪</span>테스트</a>
+</nav>
+
+<script>
+// 네비와 섹션 연결
+const items = document.querySelectorAll('.nav-item');
+const sections = document.querySelectorAll('main section');
+
+function setActive(targetId){
+  sections.forEach(s => s.id === targetId ? s.classList.add('active') : s.classList.remove('active'));
+  items.forEach(i => i.dataset.target === targetId ? i.classList.add('active') : i.classList.remove('active'));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// 클릭 이벤트
+items.forEach(i => {
+  i.addEventListener('click', e=>{
+    e.preventDefault();
+    setActive(i.dataset.target);
+    history.replaceState(null,'','#'+i.dataset.target);
+  });
+});
+
+// 페이지 로드 시 해시 활성화
+const hash = location.hash.replace('#','');
+if(hash && document.getElementById(hash)) setActive(hash);
+
+// 스크롤 fade-in
+const faders = document.querySelectorAll('[data-animate]');
+const appearOptions = { threshold:0.1 };
+const appearOnScroll = new IntersectionObserver((entries, observer)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, appearOptions);
+faders.forEach(fader=>appearOnScroll.observe(fader));
+</script>
+</body>
+</html>
