@@ -5,462 +5,386 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>2025 STEAM - Mobile</title>
   <style>
-    /* Mobile-first reset */
-    :root{--blue:#0b66ff;--soft:#f3f7ff;--bg:#ffffff;--muted:#666}
+    :root{--bg:#ffffff;--accent:#0b66ff;--soft:#f3f7ff;--muted:#6d7b8a}
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:#111}
-    a{color:inherit;text-decoration:none}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:#111;-webkit-text-size-adjust:100%}
 
-    /* Full-screen splash states */
-    .splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;z-index:9999;flex-direction:column;padding:16px;text-align:center;transition:opacity .6s ease;}
-    .splash.hidden{opacity:0;pointer-events:none}
-    .splash h1{font-size:28px;margin:0 0 8px}
-    .splash p{margin:0;font-size:16px;opacity:.95}
+    /* top progress (B: circular) */
+    .topbar{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.85));z-index:120}
+    .steps{display:flex;gap:8px;align-items:center}
+    .step{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #e6eefb;color:var(--muted);font-weight:700;font-size:13px;background:#fff}
+    .step.active{border-color:var(--accent);background:linear-gradient(135deg,var(--accent),#3fa0ff);color:#fff;box-shadow:0 6px 18px rgba(11,102,255,.12)}
+    .step.done{background:linear-gradient(90deg,#a0d4ff,#dfefff);color:var(--accent);border-color:transparent}
+    .progress-label{margin-left:auto;font-size:13px;color:var(--muted)}
 
-    /* App container */
-    .app{display:flex;flex-direction:column;min-height:100vh}
-    header{padding:18px 16px;border-bottom:1px solid #eee;background:linear-gradient(180deg,var(--soft),#fff)}
+    /* container */
+    .container{padding-top:64px;padding-bottom:80px}
+    .page{display:none;padding:18px;min-height:calc(100vh - 160px)}
+    .page.active{display:block;animation:fadeIn .36s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+    header{display:flex;flex-direction:column;gap:6px;padding:12px 18px;border-bottom:1px solid #eef6ff;background:linear-gradient(180deg,var(--soft),#fff)}
     .title{display:flex;align-items:center;justify-content:space-between}
-    .title h2{margin:0;font-size:22px;color:var(--blue)}
-    .banner{margin-top:8px;font-size:14px;color:var(--muted)}
+    .title h2{margin:0;font-size:20px;color:var(--accent)}
+    .banner{font-size:14px;color:var(--muted)}
 
-    main{flex:1;overflow:auto;padding:14px}
+    h1,h2,h3{margin:8px 0}
+    .subtitle{color:var(--muted);font-size:14px;margin-bottom:8px}
 
-    /* Home gallery */
-    .gallery{display:flex;flex-direction:column;gap:12px}
-    .photo-card{background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(12,40,80,.06);padding:10px}
-    .photo{width:100%;height:220px;border-radius:8px;object-fit:cover;background:#e9f0ff;display:block}
-    .btn-block{display:flex;justify-content:center;margin-top:8px}
-    .cta{appearance:none;border:0;background:var(--blue);color:#fff;padding:10px 14px;border-radius:999px;font-weight:600;box-shadow:0 6px 14px rgba(11,102,255,.14);cursor:pointer}
+    input[type=text],input[type=number]{width:100%;padding:12px;border-radius:12px;border:1px solid #e6eefb;font-size:16px}
+    label{display:block;margin:8px 0;color:var(--muted)}
+    .controls{display:flex;gap:8px;margin-top:16px}
+    .btn{flex:1;padding:12px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:15px;box-shadow:0 6px 18px rgba(11,102,255,.12);transition:transform .12s ease}
+    .btn:active{transform:scale(.98)}
+    .btn.secondary{background:#f3f7ff;color:var(--accent);border:1px solid #dbeeff}
+    .btn[disabled]{opacity:.5;transform:none;cursor:not-allowed}
 
-    /* Bottom nav */
-    nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 6px;z-index:50}
-    nav button{background:transparent;border:0;font-weight:700;color:var(--muted);font-size:13px;padding:8px;flex:1}
-    nav button.active{color:var(--blue)}
-
-    /* Pages */
-    .page{display:none}
-    .page.active{display:block}
-
-    /* Form styles */
-    label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
-    input[type=text],input[type=number],select{width:100%;padding:12px;border-radius:10px;border:1px solid #e6eefb;background:#fff}
-    .row{display:flex;gap:8px}
-    .controls{display:flex;gap:8px;margin-top:12px}
-    .muted{color:var(--muted);font-size:13px}
-
-    /* Fancy extras */
-    .ripple{position:relative;overflow:hidden}
-    .ripple:after{content:"";position:absolute;border-radius:50%;transform:scale(0);opacity:.6;pointer-events:none;width:200px;height:200px;background:rgba(255,255,255,.15);left:50%;top:50%;translate:-50% -50%;transition:transform .6s,opacity .8s}
-    .ripple:active:after{transform:scale(1);opacity:0}
-
-    /* small helpers */
-    .small{font-size:12px}
+    .small{font-size:13px;color:var(--muted)}
     .center{text-align:center}
+    .note{font-size:13px;color:var(--muted);margin-top:6px}
 
-    /* Confetti canvas */
-    canvas.confetti{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9998}
+    iframe.embedded{width:100%;height:48vh;border:1px solid #e6eefb;border-radius:12px}
 
-    /* Modal */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10000}
-    .sheet{background:#fff;padding:16px;border-radius:12px;max-width:420px;width:92%}
+    /* gallery */
+    .gallery{display:flex;flex-direction:column;gap:12px}
+    .photo-card{background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(12,40,80,.04);padding:8px}
+    .photo{width:100%;height:200px;border-radius:10px;object-fit:cover;background:#e9f0ff}
+    .cta-small{display:block;margin:8px auto;padding:10px 14px;border-radius:999px;background:var(--accent);color:#fff;border:0}
 
-    @media (min-width:420px){main{padding:20px}header{padding:22px}}
+    /* confetti canvas */
+    #confetti{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:999}
+
+    /* bottom nav */
+    nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 6px;z-index:120}
+    nav.bottom button{background:transparent;border:0;font-weight:700;color:var(--muted);font-size:13px;padding:8px;flex:1}
+    nav.bottom button.active{color:var(--accent)}
+
+    /* participants list */
+    .participants{margin-top:10px}
+    .card{background:#fbfdff;padding:10px;border-radius:8px;border:1px solid #eef6ff}
+
+    @media(min-width:420px){.container{max-width:420px;margin:0 auto}}
   </style>
 </head>
 <body>
-  <div class="splash" id="splash">
-    <h1 id="splash-title">안녕하세요?</h1>
-    <p id="splash-sub">(화면 어느 곳이나 눌러주세요)</p>
+
+  <!-- top progress (B style) -->
+  <div class="topbar">
+    <div class="steps" id="steps">
+      <div class="step" data-step="1">1</div>
+      <div class="step" data-step="2">2</div>
+      <div class="step" data-step="3">3</div>
+      <div class="step" data-step="4">4</div>
+      <div class="step" data-step="5">5</div>
+      <div class="step" data-step="6">6</div>
+    </div>
+    <div class="progress-label" id="progressLabel">Step 1 / 6</div>
   </div>
 
-  <div class="app" id="app" aria-hidden="true">
-    <header>
+  <div class="container">
+
+    <!-- SPLASH 1 -->
+    <div class="page active" id="splash1">
+      <div class="center">
+        <h1 style="color:var(--accent)">안녕하세요?</h1>
+        <p class="subtitle">(화면 아무곳이나 터치하세요)</p>
+      </div>
+    </div>
+
+    <!-- SPLASH 2 -->
+    <div class="page" id="splash2">
+      <div class="center">
+        <h1 style="color:var(--accent)">2025 STEAM입니다!</h1>
+        <p class="subtitle">즐거운 체험이 되시길 바랍니다!</p>
+      </div>
+    </div>
+
+    <!-- HOME -->
+    <header id="homeHeader">
       <div class="title">
         <h2>STEAM</h2>
-        <div class="small muted">모바일 전용</div>
+        <div class="small">모바일 전용</div>
       </div>
       <div class="banner">창의 융합 체험</div>
     </header>
 
-    <main>
-      <!-- Home -->
-      <section id="home" class="page active">
-        <div class="gallery" id="gallery">
-          <!-- photos injected here -->
+    <main class="page" id="home">
+      <div class="gallery" id="gallery">
+        <div class="photo-card">
+          <div class="photo" id="img1">사진1</div>
+          <button class="cta-small" data-go="more">위 실험이 궁금하다면?</button>
         </div>
-        <div class="center muted small" style="margin-top:12px">아래 버튼을 눌러 자세한 실험으로 이동하세요</div>
-      </section>
-
-      <!-- Event -->
-      <section id="event" class="page">
-        <h3>이벤트 참여</h3>
-        <form id="event-form">
-          <label>학번 / 이름</label>
-          <input type="text" id="student" placeholder="예) 20251234 홍길동" required />
-
-          <div style="margin-top:10px">
-            <label><input type="checkbox" id="read-checkbox"> 위 내용을 읽어보았습니다.</label>
-          </div>
-
-          <div class="controls">
-            <button type="button" id="event-prev" class="cta">이전</button>
-            <button type="button" id="open-external" class="cta" style="background:#2db34a">외부 페이지 열기</button>
-            <button type="button" id="event-next" class="cta" disabled>다음</button>
-          </div>
-          <div class="muted small" style="margin-top:10px">*외부 페이지가 열리면 "결과보기 버튼"을 눌러주세요. 앱으로 돌아와 아래의 확인 버튼을 눌러 다음으로 진행할 수 있습니다.</div>
-          <div style="margin-top:10px">
-            <button type="button" id="external-confirm" class="cta" style="background:var(--blue)">결과보기 완료 (확인)</button>
-          </div>
-        </form>
-      </section>
-
-      <!-- More (더보기) -->
-      <section id="more" class="page">
-        <h3>더보기</h3>
-        <div style="margin-bottom:12px">
-          <label>사진 업로드 (홈에 표시됩니다)</label>
-          <input type="file" id="image-uploader" accept="image/*" multiple />
+        <div class="photo-card">
+          <div class="photo" id="img2">사진2</div>
+          <button class="cta-small" data-go="more">위 실험이 궁금하다면?</button>
         </div>
-
-        <div style="margin-bottom:12px">
-          <h4>실험 페이지</h4>
-          <div class="muted">참여 학생 목록</div>
-          <div id="participants" style="margin-top:8px"></div>
+        <div class="photo-card">
+          <div class="photo" id="img3">사진3</div>
+          <button class="cta-small" data-go="more">위 실험이 궁금하다면?</button>
         </div>
-
-        <div style="margin-top:10px">
-          <h4>실험(샘플)</h4>
-          <p class="muted">홈의 사진 아래에 있는 "위 실험이 궁금하다면?" 버튼을 누르면 이 실험 페이지로 이동합니다.</p>
-        </div>
-      </section>
-
-      <!-- Aroma Flow -->
-      <section id="aroma" class="page">
-        <h3>아로마 오일을 만들러 가봐요!</h3>
-        <div style="margin-top:8px"><label><input type="checkbox" id="aroma-done"> 아로마 오일을 완성하였습니다.</label></div>
-        <div class="controls" style="margin-top:12px">
-          <button class="cta" id="aroma-prev">이전</button>
-          <button class="cta" id="aroma-next" disabled>다음</button>
-        </div>
-      </section>
-
-      <!-- Heart rate comparison -->
-      <section id="heart" class="page">
-        <h3>심박수 측정</h3>
-        <div style="margin-top:8px">
-          <label>이전 심박수는..</label>
-          <input type="number" id="hr1" placeholder="예) 72" />
-        </div>
-        <div style="margin-top:12px">
-          <label>향을 맡은 후 심박수는..</label>
-          <input type="number" id="hr2" placeholder="예) 80" />
-        </div>
-        <div style="margin-top:12px">
-          <button id="compare-btn" class="cta">입력</button>
-        </div>
-        <div id="hr-result" style="margin-top:12px;font-weight:700"></div>
-        <div class="controls" style="margin-top:12px">
-          <button class="cta" id="heart-prev">이전</button>
-          <button class="cta" id="heart-next" disabled>다음</button>
-        </div>
-      </section>
-
-      <!-- Celebration & Submit -->
-      <section id="submit" class="page">
-        <h3 id="celebrate-title">축하합니다!</h3>
-        <p id="celebrate-sub">팡파레를 터트리며 축하드립니다! 성공적으로 STEAM의 부스를 체험하셨습니다. 아래 제출 버튼을 누르시면 이후 추첨 3인에게 소정의 상품을 드립니다!</p>
-        <div style="margin-top:12px" class="controls">
-          <button id="cancel-btn" class="cta">취소</button>
-          <button id="submit-btn" class="cta">제출</button>
-        </div>
-      </section>
-
-      <!-- Final confirmation -->
-      <section id="done" class="page">
-        <h3>성공적으로 응모되셨습니다!</h3>
-        <p class="muted">참여해 주셔서 감사합니다.</p>
-      </section>
-
+      </div>
     </main>
 
-    <nav class="bottom" role="navigation" aria-label="사이트 내비게이션">
-      <button id="nav-event">이벤트</button>
-      <button id="nav-home" class="active">홈</button>
-      <button id="nav-more">더보기</button>
-    </nav>
+    <!-- EVENT FLOW: pages 1..6 -->
+    <section class="page" id="event-root" style="display:none">
+      <!-- PAGE 1 -->
+      <div class="page" id="page1">
+        <h2>이벤트 참여</h2>
+        <p class="subtitle">학번 / 이름을 입력해주세요</p>
+        <input type="text" id="stuInput" placeholder="예) 20251234 홍길동" />
+        <div class="controls">
+          <button class="btn secondary" id="p1-prev">이전</button>
+          <button class="btn" id="p1-next" disabled>다음</button>
+        </div>
+        <p class="note">입력하면 다음 버튼이 활성화 됩니다.</p>
+      </div>
+
+      <!-- PAGE 2 -->
+      <div class="page" id="page2">
+        <h2>2025 STEAM 안내</h2>
+        <p class="subtitle">아래 창에서 내용을 확인하고 체크박스를 눌러주세요</p>
+        <iframe class="embedded" src="https://laranahyun-hub.github.io/2025STEAM/" title="2025STEAM"></iframe>
+        <label style="margin-top:8px"><input type="checkbox" id="chk2"> 위 내용을 읽어보았습니다.</label>
+        <div class="controls">
+          <button class="btn secondary" id="p2-prev">이전</button>
+          <button class="btn" id="p2-next" disabled>다음</button>
+        </div>
+      </div>
+
+      <!-- PAGE 3 -->
+      <div class="page" id="page3">
+        <h2>GPTI 확인</h2>
+        <p class="subtitle">아래 창에서 결과를 확인하세요 (조건 없음)</p>
+        <iframe class="embedded" src="https://laranahyun-hub.github.io/GPTI/" title="GPTI"></iframe>
+        <div class="controls">
+          <button class="btn secondary" id="p3-prev">이전</button>
+          <button class="btn" id="p3-next">다음</button>
+        </div>
+      </div>
+
+      <!-- PAGE 4 -->
+      <div class="page" id="page4">
+        <h2>아로마 오일을 만들러 가봐요!</h2>
+        <p class="subtitle">아로마를 완성하셨나요? 확인해 주세요.</p>
+        <label><input type="checkbox" id="chk4"> 아로마 오일을 완성하였습니다.</label>
+        <div class="controls">
+          <button class="btn secondary" id="p4-prev">이전</button>
+          <button class="btn" id="p4-next" disabled>다음</button>
+        </div>
+      </div>
+
+      <!-- PAGE 5 -->
+      <div class="page" id="page5">
+        <h2>심박수 측정</h2>
+        <p class="subtitle">숫자를 입력하고 비교해 주세요</p>
+        <label>이전 심박수는..</label>
+        <input type="number" id="hrBefore" placeholder="예) 72" />
+        <label style="margin-top:8px">향을 맡은 후 심박수는..</label>
+        <input type="number" id="hrAfter" placeholder="예) 80" />
+        <div style="margin-top:12px">
+          <button class="btn" id="checkHR">입력</button>
+        </div>
+        <p id="hrText" class="note" style="font-weight:700;margin-top:12px"></p>
+        <div class="controls">
+          <button class="btn secondary" id="p5-prev">이전</button>
+          <button class="btn" id="p5-next" disabled>다음</button>
+        </div>
+      </div>
+
+      <!-- PAGE 6 -->
+      <div class="page" id="page6">
+        <h2>🎉 축하드립니다!</h2>
+        <p class="subtitle">성공적으로 STEAM의 부스를 체험하셨습니다.</p>
+        <p class="note">제출 버튼을 누르시면 추첨 대상자로 등록됩니다.</p>
+        <div style="margin-top:12px" class="participants card" id="participantCard">참여 학생: <span id="currentName" style="font-weight:700"></span></div>
+        <div class="controls" style="margin-top:14px">
+          <button class="btn secondary" id="p6-cancel">취소</button>
+          <button class="btn" id="p6-submit">제출</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- DONE overlay page -->
+    <section class="page" id="donePage">
+      <h2>성공적으로 응모되셨습니다!</h2>
+      <p class="subtitle">참여해 주셔서 감사합니다.</p>
+      <div class="controls">
+        <button class="btn" id="done-home">홈으로</button>
+      </div>
+    </section>
+
+    <!-- MORE -->
+    <section class="page" id="more">
+      <h2>더보기</h2>
+      <p class="subtitle">참여 학생 목록</p>
+      <div id="listContainer" class="participants"></div>
+    </section>
+
   </div>
 
-  <canvas class="confetti" id="confetti"></canvas>
+  <!-- bottom nav -->
+  <nav class="bottom">
+    <button id="nav-event">이벤트</button>
+    <button id="nav-home" class="active">홈</button>
+    <button id="nav-more">더보기</button>
+  </nav>
 
-  <!-- small audio for fanfare (tiny beep as base64) -->
-  <audio id="fanfare" preload="auto">
-    <source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA..." type="audio/mpeg">
-  </audio>
+  <!-- confetti canvas -->
+  <canvas id="confetti"></canvas>
 
   <script>
-    // ---------- App state & helpers ----------
-    const splash = document.getElementById('splash');
-    const splashTitle = document.getElementById('splash-title');
-    const splashSub = document.getElementById('splash-sub');
-    const app = document.getElementById('app');
-    const pages = document.querySelectorAll('.page');
-    const navEvent = document.getElementById('nav-event');
-    const navHome = document.getElementById('nav-home');
-    const navMore = document.getElementById('nav-more');
+    // --- utility to show arbitrary page sections ---
+    function hideAllPages(){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); }
 
-    let splashStage = 0;
-    const splashMessages = [
-      {title:'안녕하세요?', sub:'(화면 어느 곳이나 눌러주세요)'},
-      {title:'2025 STEAM입니다!', sub:'즐거운 체험이 되시길 바랍니다!'},
-    ];
+    // initial state: splash1 visible, home header hidden until after splash
+    const homeHeader = document.getElementById('homeHeader');
+    const homeMain = document.getElementById('home');
+    const eventRoot = document.getElementById('event-root');
+    const morePage = document.getElementById('more');
 
-    function nextSplash(){
-      splashStage++;
-      if(splashStage < splashMessages.length){
-        splashTitle.textContent = splashMessages[splashStage].title;
-        splashSub.textContent = splashMessages[splashStage].sub;
-      } else {
-        // hide splash and show app
-        splash.classList.add('hidden');
-        setTimeout(()=>{splash.style.display='none';app.removeAttribute('aria-hidden')},600);
-      }
-    }
+    // show splash1 initially
+    hideAllPages(); document.getElementById('splash1').classList.add('active'); homeHeader.style.display='none';
 
-    splash.addEventListener('click',()=>{
-      nextSplash();
+    // splash interactions
+    document.getElementById('splash1').addEventListener('click', ()=>{
+      hideAllPages(); document.getElementById('splash2').classList.add('active');
+    });
+    document.getElementById('splash2').addEventListener('click', ()=>{
+      // show home
+      hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active');
+      // set nav active
+      setNav('home');
     });
 
-    // allow the user to click second message to go to app as well
-    splash.addEventListener('dblclick',()=>{splashStage = splashMessages.length; nextSplash();});
-
-    // ---------- Navigation ----------
-    function showPage(id){
-      pages.forEach(p=>p.classList.remove('active'));
-      const el = document.getElementById(id);
-      if(el) el.classList.add('active');
-      // update nav active
-      navEvent.classList.toggle('active', id==='event');
-      navHome.classList.toggle('active', id==='home');
-      navMore.classList.toggle('active', id==='more');
-    }
-
-    navEvent.addEventListener('click',()=>showPage('event'));
-    navHome.addEventListener('click',()=>showPage('home'));
-    navMore.addEventListener('click',()=>showPage('more'));
-
-    // ---------- Gallery & image uploads ----------
-    const gallery = document.getElementById('gallery');
-    const uploader = document.getElementById('image-uploader');
-
-    function renderGallery(){
-      gallery.innerHTML = '';
-      const imgs = JSON.parse(localStorage.getItem('steam_images')||'[]');
-      if(imgs.length===0){
-        // default placeholders
-        for(let i=1;i<=3;i++){
-          addPhotoCard(null,`사진${i}`);
-        }
-      } else {
-        imgs.forEach((dataUrl, idx)=>{
-          addPhotoCard(dataUrl,`사진${idx+1}`);
-        })
-      }
-    }
-
-    function addPhotoCard(src,label){
-      const card = document.createElement('div');card.className='photo-card';
-      const img = document.createElement('img');img.className='photo';
-      if(src) img.src = src; else img.alt = label;
-      img.loading='lazy';
-      card.appendChild(img);
-      const btnWrap = document.createElement('div');btnWrap.className='btn-block';
-      const btn = document.createElement('button');btn.className='cta ripple';btn.textContent='위 실험이 궁금하다면?';
-      btn.addEventListener('click',()=>{ showPage('more'); });
-      btnWrap.appendChild(btn);
-      card.appendChild(btnWrap);
-      gallery.appendChild(card);
-    }
-
-    uploader.addEventListener('change',async (e)=>{
-      const files = Array.from(e.target.files).slice(0,6);
-      const arr = [];
-      for(const f of files){
-        arr.push(await toDataURL(f));
-      }
-      localStorage.setItem('steam_images', JSON.stringify(arr));
-      renderGallery();
+    // NAV
+    document.getElementById('nav-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); });
+    document.getElementById('nav-more').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); refreshParticipantsUI(); });
+    document.getElementById('nav-event').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; eventRoot.style.display='block'; // show first event page
+      // show event page1
+      eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      document.getElementById('page1').classList.add('active'); setNav('event'); updateTop(1);
     });
 
-    function toDataURL(file){
-      return new Promise((res,rej)=>{
-        const r = new FileReader();
-        r.onload = ()=>res(r.result);
-        r.onerror=rej;
-        r.readAsDataURL(file);
-      })
+    function setNav(which){ document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active')); if(which==='home') document.getElementById('nav-home').classList.add('active'); if(which==='more') document.getElementById('nav-more').classList.add('active'); if(which==='event') document.getElementById('nav-event').classList.add('active'); }
+
+    // gallery buttons to go to more (실험 페이지)
+    document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); }));
+
+    // ---------- Event flow logic with top step indicator ----------
+    const stepsEls = document.querySelectorAll('.step');
+    const progressLabel = document.getElementById('progressLabel');
+    function updateTop(step){
+      stepsEls.forEach(el=>{ const s = Number(el.getAttribute('data-step')); el.classList.remove('active','done'); if(step> s) el.classList.add('done'); if(step===s) el.classList.add('active'); });
+      progressLabel.textContent = `Step ${step} / 6`;
     }
 
-    // ---------- Participants storage & display ----------
-    function getParticipants(){
-      return JSON.parse(localStorage.getItem('steam_participants')||'[]');
-    }
-    function saveParticipant(name){
-      const list = getParticipants();
-      list.push({name,ts:Date.now()});
-      localStorage.setItem('steam_participants', JSON.stringify(list));
-      renderParticipants();
-    }
-    function renderParticipants(){
-      const box = document.getElementById('participants');
-      const list = getParticipants();
-      if(list.length===0){box.innerHTML='<div class="muted">참여한 학생이 아직 없습니다.</div>';return}
-      box.innerHTML = list.slice().reverse().map(it=>`<div style="padding:8px;border-radius:8px;background:#f8fbff;margin-bottom:6px">${escapeHtml(it.name)} <div class="small muted">${new Date(it.ts).toLocaleString()}</div></div>`).join('');
-    }
-
-    function escapeHtml(str){return str.replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[s]);}
-
-    // ---------- Event page logic ----------
-    const studentInput = document.getElementById('student');
-    const readCheckbox = document.getElementById('read-checkbox');
-    const eventNext = document.getElementById('event-next');
-    const eventPrev = document.getElementById('event-prev');
-    const openExternal = document.getElementById('open-external');
-    const externalConfirm = document.getElementById('external-confirm');
-
-    function updateEventNext(){
-      eventNext.disabled = !(studentInput.value.trim() && readCheckbox.checked && localStorage.getItem('external_confirmed')==='yes');
-    }
-    studentInput.addEventListener('input',updateEventNext);
-    readCheckbox.addEventListener('change',updateEventNext);
-
-    eventPrev.addEventListener('click',()=>{ showPage('home'); });
-
-    openExternal.addEventListener('click',()=>{
-      // open specified page in new tab
-      window.open('https://laranahyun-hub.github.io/2025STEAM/','_blank');
-      alert('새 탭으로 열었습니다. 외부 페이지에서 "결과보기"를 눌러주세요. 완료 후 앱으로 돌아와 "결과보기 완료(확인)" 버튼을 눌러주세요.');
+    // Page1
+    const stuInput = document.getElementById('stuInput');
+    const p1next = document.getElementById('p1-next');
+    const p1prev = document.getElementById('p1-prev');
+    stuInput.addEventListener('input', ()=>{ p1next.disabled = !stuInput.value.trim(); });
+    p1next.addEventListener('click', ()=>{ localStorage.setItem('current_student', stuInput.value.trim()); // show page2
+      eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTop(2);
+    });
+    p1prev.addEventListener('click', ()=>{ // back to home
+      hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); updateTop(0);
     });
 
-    externalConfirm.addEventListener('click',()=>{
-      // can't verify external action: use manual confirmation
-      localStorage.setItem('external_confirmed','yes');
-      updateEventNext();
-      alert('확인되었습니다. 이제 다음 버튼이 활성화되면 진행하세요.');
+    // Page2
+    const chk2 = document.getElementById('chk2');
+    const p2next = document.getElementById('p2-next');
+    const p2prev = document.getElementById('p2-prev');
+    chk2.addEventListener('change', ()=>{ p2next.disabled = !chk2.checked; });
+    p2prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); updateTop(1); });
+    p2next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTop(3); });
+
+    // Page3
+    const p3prev = document.getElementById('p3-prev');
+    const p3next = document.getElementById('p3-next');
+    p3prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTop(2); });
+    p3next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTop(4); });
+
+    // Page4
+    const chk4 = document.getElementById('chk4');
+    const p4prev = document.getElementById('p4-prev');
+    const p4next = document.getElementById('p4-next');
+    chk4.addEventListener('change', ()=>{ p4next.disabled = !chk4.checked; });
+    p4prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTop(3); });
+    p4next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page5').classList.add('active'); updateTop(5); });
+
+    // Page5
+    const hrBefore = document.getElementById('hrBefore');
+    const hrAfter = document.getElementById('hrAfter');
+    const checkHR = document.getElementById('checkHR');
+    const hrText = document.getElementById('hrText');
+    const p5prev = document.getElementById('p5-prev');
+    const p5next = document.getElementById('p5-next');
+    checkHR.addEventListener('click', ()=>{
+      const b = Number(hrBefore.value);
+      const a = Number(hrAfter.value);
+      if(!Number.isFinite(b) || !Number.isFinite(a) || hrBefore.value === '' || hrAfter.value === ''){ hrText.textContent = '두 칸에 숫자를 모두 입력해주세요.'; return; }
+      if(b < a) hrText.textContent = '심박수가 증가하셨네요! 긴장하셨나봐요....';
+      else if(b > a) hrText.textContent = '심박수가 감소하셨네요! 향이 마음에 드시나봐요.';
+      else hrText.textContent = '심박수에 변화가 없네요.';
+      p5next.disabled = false;
     });
+    p5prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTop(4); });
+    p5next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page6').classList.add('active'); updateTop(6); });
 
-    eventNext.addEventListener('click',()=>{
-      // Save student and go to aroma start page
-      if(studentInput.value.trim()){
-        localStorage.setItem('current_student', studentInput.value.trim());
-      }
-      // As requested, open https://laranahyun-hub.github.io/GPTI/ before enabling next step
-      window.open('https://laranahyun-hub.github.io/GPTI/','_blank');
-      showPage('aroma');
-    });
-
-    // ---------- Aroma page ----------
-    const aromaDone = document.getElementById('aroma-done');
-    const aromaNext = document.getElementById('aroma-next');
-    const aromaPrev = document.getElementById('aroma-prev');
-    aromaDone.addEventListener('change',()=>{aromaNext.disabled=!aromaDone.checked});
-    aromaPrev.addEventListener('click',()=>showPage('event'));
-    aromaNext.addEventListener('click',()=>showPage('heart'));
-
-    // ---------- Heart rate page ----------
-    const hr1 = document.getElementById('hr1');
-    const hr2 = document.getElementById('hr2');
-    const compareBtn = document.getElementById('compare-btn');
-    const hrResult = document.getElementById('hr-result');
-    const heartNext = document.getElementById('heart-next');
-    const heartPrev = document.getElementById('heart-prev');
-
-    compareBtn.addEventListener('click',()=>{
-      const v1 = parseFloat(hr1.value);
-      const v2 = parseFloat(hr2.value);
-      if(isNaN(v1)||isNaN(v2)){
-        hrResult.textContent='두 입력란에 숫자를 모두 입력해 주세요.'; return;
-      }
-      if(v1 < v2){ hrResult.textContent='심박수가 증가하셨네요! 긴장하셨나봐요....'; }
-      else if(v1 > v2){ hrResult.textContent='심박수가 감소하셨네요! 향이 마음에 드시나봐요.'; }
-      else { hrResult.textContent='심박수에 변화가 없네요!'; }
-      heartNext.disabled=false;
-    });
-    heartPrev.addEventListener('click',()=>showPage('aroma'));
-    heartNext.addEventListener('click',()=>{
-      // go to celebration
-      showPage('submit');
-      playFanfare();
-      startConfetti();
-    });
-
-    // ---------- Submit / Cancel ----------
-    const submitBtn = document.getElementById('submit-btn');
-    const cancelBtn = document.getElementById('cancel-btn');
-
-    cancelBtn.addEventListener('click',()=>{
-      // Clear temporary data and return to student input
+    // Page6 submit/cancel
+    const p6cancel = document.getElementById('p6-cancel');
+    const p6submit = document.getElementById('p6-submit');
+    const currentNameEl = document.getElementById('currentName');
+    function refreshCurrent(){ const v = localStorage.getItem('current_student') || stuInput.value || ''; currentNameEl.textContent = v; }
+    refreshCurrent();
+    p6cancel.addEventListener('click', ()=>{
       if(confirm('지금까지의 데이터를 모두 삭제하고 학번/이름 입력 페이지로 돌아가시겠습니까?')){
-        clearSessionData();
-        showPage('event');
-        studentInput.value=''; readCheckbox.checked=false; localStorage.removeItem('external_confirmed'); updateEventNext();
+        localStorage.removeItem('current_student');
+        localStorage.removeItem('steam_participants');
+        hrBefore.value=''; hrAfter.value=''; hrText.textContent='';
+        stuInput.value=''; p1next.disabled = true;
+        refreshParticipantsUI();
+        // go home
+        hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home');
       }
     });
-
-    submitBtn.addEventListener('click',()=>{
-      const current = localStorage.getItem('current_student')||studentInput.value.trim();
-      if(!current){ alert('학번/이름이 필요합니다. 이벤트 페이지에서 입력하세요.'); showPage('event'); return; }
-      saveParticipant(current);
-      // mark submitted so we can show confirmation
-      localStorage.setItem('last_submission', JSON.stringify({name:current,ts:Date.now()}));
-      showPage('done');
+    p6submit.addEventListener('click', ()=>{
+      const name = localStorage.getItem('current_student') || stuInput.value.trim();
+      if(!name){ alert('학번/이름을 입력하세요.'); // back to page1
+        eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); return; }
+      const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]');
+      arr.push({name, ts: Date.now()});
+      localStorage.setItem('steam_participants', JSON.stringify(arr));
+      refreshParticipantsUI(); playFanfare(); startConfetti(); setTimeout(()=>{ hideAllPages(); document.getElementById('donePage').classList.add('active'); },900);
     });
 
-    function clearSessionData(){
-      localStorage.removeItem('current_student');
-      localStorage.removeItem('external_confirmed');
-      localStorage.removeItem('hr1');
-      localStorage.removeItem('hr2');
-      hr1.value=''; hr2.value=''; hrResult.textContent='';
-    }
+    document.getElementById('done-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); });
 
-    // ---------- confetti (simple) ----------
-    const confettiCanvas = document.getElementById('confetti');
-    confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight;
-    let confettiPieces = [];
-    function startConfetti(){
-      confettiPieces = [];
-      for(let i=0;i<80;i++) confettiPieces.push({x:Math.random()*confettiCanvas.width,y:Math.random()*-confettiCanvas.height*2, r:Math.random()*6+4, d:Math.random()*3+1, tilt:Math.random()*10-10, color:`hsl(${Math.random()*60+200},90%,60%)`});
-      requestAnimationFrame(drawConfetti);
-      try{ document.getElementById('fanfare')?.play(); }catch(e){}
-      setTimeout(()=>{ confettiPieces=[]; clearCanvas(); },4500);
-    }
-    function drawConfetti(){
-      const ctx = confettiCanvas.getContext('2d');
-      ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
-      for(const p of confettiPieces){
-        ctx.beginPath(); ctx.fillStyle=p.color; ctx.ellipse(p.x,p.y,p.r,p.r/2, p.tilt,0,Math.PI*2); ctx.fill();
-        p.y += p.d; p.x += Math.sin(p.y/15);
-      }
-      if(confettiPieces.length) requestAnimationFrame(drawConfetti);
-    }
-    function clearCanvas(){ const ctx=confettiCanvas.getContext('2d'); ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); }
+    // MORE participants UI
+    function refreshParticipantsUI(){ const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]'); const cont = document.getElementById('listContainer'); if(arr.length===0) cont.innerHTML='<div class="card">참여한 학생이 없습니다.</div>'; else cont.innerHTML = arr.slice().reverse().map(x=>`<div class="card">${escapeHtml(x.name)}<div class="small">${new Date(x.ts).toLocaleString()}</div></div>`).join(''); }
+    function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
 
-    function playFanfare(){
-      const a = document.getElementById('fanfare');
-      if(a){ try{ a.currentTime=0; a.play(); } catch(e){} }
-    }
+    // ---------- Confetti ----------
+    const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d'); function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; } window.addEventListener('resize', resizeCanvas); resizeCanvas(); let particles = [];
+    function startConfetti(){ particles = []; const count = 120; for(let i=0;i<count;i++) particles.push(createParticle()); runConfetti(); setTimeout(()=>{ particles = []; },4200); }
+    function createParticle(){ const w = Math.random()*10 + 6; return { x: Math.random()*canvas.width, y: -Math.random()*canvas.height/2, w, h: w*0.6, vx: (Math.random()-0.5)*6, vy: Math.random()*4 + 2, rot: Math.random()*360, vrot: (Math.random()-0.5)*10, color: `hsl(${Math.random()*360},80%,60%)`, opacity: 1 }; }
+    function runConfetti(){ const step = ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); for(const p of particles){ p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.rot += p.vrot; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot * Math.PI/180); ctx.globalAlpha = p.opacity; ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore(); } if(particles.length) requestAnimationFrame(step); }; requestAnimationFrame(step); }
 
-    // ---------- init ----------
-    function init(){ renderGallery(); renderParticipants(); bindNavButtons(); }
-    function bindNavButtons(){
-      // keyboard shortcuts for dev (not necessary on mobile)
-    }
+    // fanfare
+    function playFanfare(){ try{ const a = new Audio(); a.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA='; a.play().catch(()=>{}); }catch(e){} }
 
-    // accessibility small refinement
-    window.addEventListener('resize',()=>{ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; });
+    // helper to update top step visuals when event flow starts
+    function updateTop(n){ if(typeof n !== 'number') n = 0; updateTopLocal(n); }
+    function updateTopLocal(step){ document.querySelectorAll('.step').forEach(el=>{ const s = Number(el.getAttribute('data-step')); el.classList.remove('active','done'); if(step> s) el.classList.add('done'); if(step===s) el.classList.add('active'); }); document.getElementById('progressLabel').textContent = step > 0 ? `Step ${step} / 6` : '' }
 
-    init();
+    // init
+    refreshParticipantsUI(); // ensure gallery buttons work
+    document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); }));
+
+    // expose for debug
+    window.startEventFlow = ()=>{ hideAllPages(); homeHeader.style.display='flex'; eventRoot.style.display='block'; eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); setNav('event'); updateTopLocal(1); };
+
   </script>
 </body>
 </html>
