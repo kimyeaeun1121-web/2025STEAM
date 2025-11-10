@@ -1,188 +1,466 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>2025 STEAM</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#ffffff;
-  --accent:#0a84ff;
-  --muted:#666;
-  --nav-h:64px;
-  --radius:14px;
-  --hero-bg:linear-gradient(135deg, #0a84ff, #00bfff);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%; font-family:'Inter',sans-serif; background:var(--bg); color:#111;}
-.app{min-height:100vh; padding-bottom:calc(var(--nav-h)+12px);}
-a{text-decoration:none; color:inherit;}
-/* 헤더 */
-header{text-align:center; padding:14px 16px; border-bottom:1px solid #f0f0f0;}
-.site-title{font-weight:700; font-size:24px; margin-bottom:4px;}
-.subtitle{font-size:14px; color:var(--muted);}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>2025 STEAM - Mobile</title>
+  <style>
+    /* Mobile-first reset */
+    :root{--blue:#0b66ff;--soft:#f3f7ff;--bg:#ffffff;--muted:#666}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:#111}
+    a{color:inherit;text-decoration:none}
 
-/* Hero 섹션 */
-.hero{
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  height:200px; color:#fff; text-align:center; border-radius:16px;
-  background:var(--hero-bg); margin:16px 0; box-shadow:0 10px 25px rgba(0,0,0,0.15);
-}
-.hero h1{font-size:26px; margin-bottom:8px; text-shadow: 1px 1px 4px rgba(0,0,0,0.3);}
-.hero p{font-size:14px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+    /* Full-screen splash states */
+    .splash{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;z-index:9999;flex-direction:column;padding:16px;text-align:center;transition:opacity .6s ease;}
+    .splash.hidden{opacity:0;pointer-events:none}
+    .splash h1{font-size:28px;margin:0 0 8px}
+    .splash p{margin:0;font-size:16px;opacity:.95}
 
-/* 섹션 */
-main{padding:18px; max-width:520px; margin:0 auto;}
-section{opacity:0; transform:translateY(20px); transition: all 0.6s ease; margin-bottom:20px;}
-section.active{opacity:1; transform:translateY(0);}
-h1{font-size:22px; margin-bottom:12px;}
-p{color:var(--muted); line-height:1.5; margin-bottom:12px;}
+    /* App container */
+    .app{display:flex;flex-direction:column;min-height:100vh}
+    header{padding:18px 16px;border-bottom:1px solid #eee;background:linear-gradient(180deg,var(--soft),#fff)}
+    .title{display:flex;align-items:center;justify-content:space-between}
+    .title h2{margin:0;font-size:22px;color:var(--blue)}
+    .banner{margin-top:8px;font-size:14px;color:var(--muted)}
 
-/* 카드 */
-.card{
-  background:#fff; border-radius:var(--radius); padding:16px; margin-bottom:16px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.08); transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover{
-  transform: translateY(-4px);
-  box-shadow:0 12px 30px rgba(0,0,0,0.12);
-}
-.card h3{color:var(--accent); margin-bottom:6px;}
+    main{flex:1;overflow:auto;padding:14px}
 
-/* 버튼 */
-.btn{
-  display:inline-block; padding:10px 16px; background:var(--accent); color:#fff; border-radius:10px; font-weight:600;
-  transition: background 0.3s ease, transform 0.3s ease;
-  margin-top:8px;
-}
-.btn:hover{background:#0066cc; transform:translateY(-2px);}
+    /* Home gallery */
+    .gallery{display:flex;flex-direction:column;gap:12px}
+    .photo-card{background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(12,40,80,.06);padding:10px}
+    .photo{width:100%;height:220px;border-radius:8px;object-fit:cover;background:#e9f0ff;display:block}
+    .btn-block{display:flex;justify-content:center;margin-top:8px}
+    .cta{appearance:none;border:0;background:var(--blue);color:#fff;padding:10px 14px;border-radius:999px;font-weight:600;box-shadow:0 6px 14px rgba(11,102,255,.14);cursor:pointer}
 
-/* GPTI iframe */
-.gpti-frame{width:100%; height:60vh; border:0; border-radius:12px; box-shadow: inset 0 0 0 1px #f0f0f0; margin-bottom:12px;}
+    /* Bottom nav */
+    nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 6px;z-index:50}
+    nav button{background:transparent;border:0;font-weight:700;color:var(--muted);font-size:13px;padding:8px;flex:1}
+    nav button.active{color:var(--blue)}
 
-/* 하단 네비게이션 */
-nav.bottom-nav{
-  position:fixed; left:12px; right:12px; bottom:12px; height:var(--nav-h);
-  background:#fff; border-radius:16px; display:flex; justify-content:space-around; align-items:center;
-  box-shadow:0 10px 30px rgba(0,0,0,0.08); padding:6px;
-}
-.nav-item{flex:1; text-align:center; text-decoration:none; color:var(--muted); font-size:12px; padding:8px 6px; border-radius:10px;}
-.nav-item .icon{display:block; font-size:18px; margin-bottom:4px;}
-.nav-item.active{color:var(--accent); font-weight:600;}
+    /* Pages */
+    .page{display:none}
+    .page.active{display:block}
 
-/* fade-in 애니메이션 (스크롤용) */
-[data-animate]{opacity:0; transform:translateY(20px); transition: all 0.6s ease;}
-[data-animate].visible{opacity:1; transform:translateY(0);}
+    /* Form styles */
+    label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+    input[type=text],input[type=number],select{width:100%;padding:12px;border-radius:10px;border:1px solid #e6eefb;background:#fff}
+    .row{display:flex;gap:8px}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    .muted{color:var(--muted);font-size:13px}
 
-/* 반응형 */
-@media(min-width:560px){main{max-width:520px;} nav.bottom-nav{left:50%; transform:translateX(-50%); max-width:520px;}}
-</style>
+    /* Fancy extras */
+    .ripple{position:relative;overflow:hidden}
+    .ripple:after{content:"";position:absolute;border-radius:50%;transform:scale(0);opacity:.6;pointer-events:none;width:200px;height:200px;background:rgba(255,255,255,.15);left:50%;top:50%;translate:-50% -50%;transition:transform .6s,opacity .8s}
+    .ripple:active:after{transform:scale(1);opacity:0}
+
+    /* small helpers */
+    .small{font-size:12px}
+    .center{text-align:center}
+
+    /* Confetti canvas */
+    canvas.confetti{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9998}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10000}
+    .sheet{background:#fff;padding:16px;border-radius:12px;max-width:420px;width:92%}
+
+    @media (min-width:420px){main{padding:20px}header{padding:22px}}
+  </style>
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="site-title">2025 STEAM</div>
-    <div class="subtitle">창의 · 융합 · 체험</div>
-  </header>
+  <div class="splash" id="splash">
+    <h1 id="splash-title">안녕하세요?</h1>
+    <p id="splash-sub">(화면 어느 곳이나 눌러주세요)</p>
+  </div>
 
-  <main>
-    <!-- Hero -->
-    <div class="hero" data-animate>
-      <h1>환영합니다!</h1>
-      <p>2025 STEAM 공식 모바일 홈페이지 — 창의와 융합을 경험하세요</p>
-      <a href="#home" class="btn">홈으로 이동</a>
-    </div>
-
-    <!-- 이벤트 -->
-    <section id="events" data-animate>
-      <h1>이벤트</h1>
-      <div class="card">
-        <h3>다음 행사</h3>
-        <p>2025-11-20 온라인 해커톤</p>
-        <a href="#" class="btn">참가하기</a>
+  <div class="app" id="app" aria-hidden="true">
+    <header>
+      <div class="title">
+        <h2>STEAM</h2>
+        <div class="small muted">모바일 전용</div>
       </div>
-      <div class="card">
-        <h3>지난 행사</h3>
-        <p>2025-09-05 워크숍 후기</p>
-      </div>
-    </section>
+      <div class="banner">창의 융합 체험</div>
+    </header>
 
-    <!-- 홈 -->
-    <section id="home" class="active" data-animate>
-      <h1>홈</h1>
-      <p>모바일 최적화된 2025 STEAM 공식 홈페이지입니다. 메뉴를 통해 다양한 콘텐츠로 이동하세요.</p>
-      <div class="card">
-        <h3>공지</h3>
-        <p>곧 진행될 이벤트와 소식을 확인해보세요.</p>
-        <a href="#events" class="btn">이벤트 보기</a>
-      </div>
-    </section>
+    <main>
+      <!-- Home -->
+      <section id="home" class="page active">
+        <div class="gallery" id="gallery">
+          <!-- photos injected here -->
+        </div>
+        <div class="center muted small" style="margin-top:12px">아래 버튼을 눌러 자세한 실험으로 이동하세요</div>
+      </section>
 
-    <!-- 테스트 -->
-    <section id="test" data-animate>
-      <h1>테스트 페이지</h1>
-      <p>여기는 테스트용 섹션입니다. 자유롭게 콘텐츠를 추가하세요.</p>
-      <div class="card">
-        <h3>샘플 카드</h3>
-        <p>카드 형태의 콘텐츠를 넣어 시각적으로 구분할 수 있습니다.</p>
-      </div>
-    </section>
+      <!-- Event -->
+      <section id="event" class="page">
+        <h3>이벤트 참여</h3>
+        <form id="event-form">
+          <label>학번 / 이름</label>
+          <input type="text" id="student" placeholder="예) 20251234 홍길동" required />
 
-    <!-- GPTI -->
-    <section id="gpti" data-animate>
-      <h1>GPTI</h1>
-      <iframe class="gpti-frame" src="https://laranahyun-hub.github.io/GPTI/" title="GPTI"></iframe>
-      <p style="font-size:13px;color:var(--muted);margin-top:8px">
-        열리지 않으면 <a href="https://laranahyun-hub.github.io/GPTI/" target="_blank" rel="noopener" style="color:var(--accent)">여기서 바로 열기</a>
-      </p>
-    </section>
-  </main>
-</div>
+          <div style="margin-top:10px">
+            <label><input type="checkbox" id="read-checkbox"> 위 내용을 읽어보았습니다.</label>
+          </div>
 
-<!-- 하단 네비게이션 -->
-<nav class="bottom-nav" role="navigation" aria-label="Bottom navigation">
-  <a href="#events" class="nav-item" data-target="events"><span class="icon">🎟️</span>이벤트</a>
-  <a href="#home" class="nav-item active" data-target="home"><span class="icon">🏠</span>홈</a>
-  <a href="#test" class="nav-item" data-target="test"><span class="icon">🧪</span>테스트</a>
-</nav>
+          <div class="controls">
+            <button type="button" id="event-prev" class="cta">이전</button>
+            <button type="button" id="open-external" class="cta" style="background:#2db34a">외부 페이지 열기</button>
+            <button type="button" id="event-next" class="cta" disabled>다음</button>
+          </div>
+          <div class="muted small" style="margin-top:10px">*외부 페이지가 열리면 "결과보기 버튼"을 눌러주세요. 앱으로 돌아와 아래의 확인 버튼을 눌러 다음으로 진행할 수 있습니다.</div>
+          <div style="margin-top:10px">
+            <button type="button" id="external-confirm" class="cta" style="background:var(--blue)">결과보기 완료 (확인)</button>
+          </div>
+        </form>
+      </section>
 
-<script>
-// 네비와 섹션 연결
-const items = document.querySelectorAll('.nav-item');
-const sections = document.querySelectorAll('main section');
+      <!-- More (더보기) -->
+      <section id="more" class="page">
+        <h3>더보기</h3>
+        <div style="margin-bottom:12px">
+          <label>사진 업로드 (홈에 표시됩니다)</label>
+          <input type="file" id="image-uploader" accept="image/*" multiple />
+        </div>
 
-function setActive(targetId){
-  sections.forEach(s => s.id === targetId ? s.classList.add('active') : s.classList.remove('active'));
-  items.forEach(i => i.dataset.target === targetId ? i.classList.add('active') : i.classList.remove('active'));
-  window.scrollTo({top:0, behavior:'smooth'});
-}
+        <div style="margin-bottom:12px">
+          <h4>실험 페이지</h4>
+          <div class="muted">참여 학생 목록</div>
+          <div id="participants" style="margin-top:8px"></div>
+        </div>
 
-// 클릭 이벤트
-items.forEach(i => {
-  i.addEventListener('click', e=>{
-    e.preventDefault();
-    setActive(i.dataset.target);
-    history.replaceState(null,'','#'+i.dataset.target);
-  });
-});
+        <div style="margin-top:10px">
+          <h4>실험(샘플)</h4>
+          <p class="muted">홈의 사진 아래에 있는 "위 실험이 궁금하다면?" 버튼을 누르면 이 실험 페이지로 이동합니다.</p>
+        </div>
+      </section>
 
-// 페이지 로드 시 해시 활성화
-const hash = location.hash.replace('#','');
-if(hash && document.getElementById(hash)) setActive(hash);
+      <!-- Aroma Flow -->
+      <section id="aroma" class="page">
+        <h3>아로마 오일을 만들러 가봐요!</h3>
+        <div style="margin-top:8px"><label><input type="checkbox" id="aroma-done"> 아로마 오일을 완성하였습니다.</label></div>
+        <div class="controls" style="margin-top:12px">
+          <button class="cta" id="aroma-prev">이전</button>
+          <button class="cta" id="aroma-next" disabled>다음</button>
+        </div>
+      </section>
 
-// 스크롤 fade-in
-const faders = document.querySelectorAll('[data-animate]');
-const appearOptions = { threshold:0.1 };
-const appearOnScroll = new IntersectionObserver((entries, observer)=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      entry.target.classList.add('visible');
-      observer.unobserve(entry.target);
+      <!-- Heart rate comparison -->
+      <section id="heart" class="page">
+        <h3>심박수 측정</h3>
+        <div style="margin-top:8px">
+          <label>이전 심박수는..</label>
+          <input type="number" id="hr1" placeholder="예) 72" />
+        </div>
+        <div style="margin-top:12px">
+          <label>향을 맡은 후 심박수는..</label>
+          <input type="number" id="hr2" placeholder="예) 80" />
+        </div>
+        <div style="margin-top:12px">
+          <button id="compare-btn" class="cta">입력</button>
+        </div>
+        <div id="hr-result" style="margin-top:12px;font-weight:700"></div>
+        <div class="controls" style="margin-top:12px">
+          <button class="cta" id="heart-prev">이전</button>
+          <button class="cta" id="heart-next" disabled>다음</button>
+        </div>
+      </section>
+
+      <!-- Celebration & Submit -->
+      <section id="submit" class="page">
+        <h3 id="celebrate-title">축하합니다!</h3>
+        <p id="celebrate-sub">팡파레를 터트리며 축하드립니다! 성공적으로 STEAM의 부스를 체험하셨습니다. 아래 제출 버튼을 누르시면 이후 추첨 3인에게 소정의 상품을 드립니다!</p>
+        <div style="margin-top:12px" class="controls">
+          <button id="cancel-btn" class="cta">취소</button>
+          <button id="submit-btn" class="cta">제출</button>
+        </div>
+      </section>
+
+      <!-- Final confirmation -->
+      <section id="done" class="page">
+        <h3>성공적으로 응모되셨습니다!</h3>
+        <p class="muted">참여해 주셔서 감사합니다.</p>
+      </section>
+
+    </main>
+
+    <nav class="bottom" role="navigation" aria-label="사이트 내비게이션">
+      <button id="nav-event">이벤트</button>
+      <button id="nav-home" class="active">홈</button>
+      <button id="nav-more">더보기</button>
+    </nav>
+  </div>
+
+  <canvas class="confetti" id="confetti"></canvas>
+
+  <!-- small audio for fanfare (tiny beep as base64) -->
+  <audio id="fanfare" preload="auto">
+    <source src="data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA..." type="audio/mpeg">
+  </audio>
+
+  <script>
+    // ---------- App state & helpers ----------
+    const splash = document.getElementById('splash');
+    const splashTitle = document.getElementById('splash-title');
+    const splashSub = document.getElementById('splash-sub');
+    const app = document.getElementById('app');
+    const pages = document.querySelectorAll('.page');
+    const navEvent = document.getElementById('nav-event');
+    const navHome = document.getElementById('nav-home');
+    const navMore = document.getElementById('nav-more');
+
+    let splashStage = 0;
+    const splashMessages = [
+      {title:'안녕하세요?', sub:'(화면 어느 곳이나 눌러주세요)'},
+      {title:'2025 STEAM입니다!', sub:'즐거운 체험이 되시길 바랍니다!'},
+    ];
+
+    function nextSplash(){
+      splashStage++;
+      if(splashStage < splashMessages.length){
+        splashTitle.textContent = splashMessages[splashStage].title;
+        splashSub.textContent = splashMessages[splashStage].sub;
+      } else {
+        // hide splash and show app
+        splash.classList.add('hidden');
+        setTimeout(()=>{splash.style.display='none';app.removeAttribute('aria-hidden')},600);
+      }
     }
-  });
-}, appearOptions);
-faders.forEach(fader=>appearOnScroll.observe(fader));
-</script>
+
+    splash.addEventListener('click',()=>{
+      nextSplash();
+    });
+
+    // allow the user to click second message to go to app as well
+    splash.addEventListener('dblclick',()=>{splashStage = splashMessages.length; nextSplash();});
+
+    // ---------- Navigation ----------
+    function showPage(id){
+      pages.forEach(p=>p.classList.remove('active'));
+      const el = document.getElementById(id);
+      if(el) el.classList.add('active');
+      // update nav active
+      navEvent.classList.toggle('active', id==='event');
+      navHome.classList.toggle('active', id==='home');
+      navMore.classList.toggle('active', id==='more');
+    }
+
+    navEvent.addEventListener('click',()=>showPage('event'));
+    navHome.addEventListener('click',()=>showPage('home'));
+    navMore.addEventListener('click',()=>showPage('more'));
+
+    // ---------- Gallery & image uploads ----------
+    const gallery = document.getElementById('gallery');
+    const uploader = document.getElementById('image-uploader');
+
+    function renderGallery(){
+      gallery.innerHTML = '';
+      const imgs = JSON.parse(localStorage.getItem('steam_images')||'[]');
+      if(imgs.length===0){
+        // default placeholders
+        for(let i=1;i<=3;i++){
+          addPhotoCard(null,`사진${i}`);
+        }
+      } else {
+        imgs.forEach((dataUrl, idx)=>{
+          addPhotoCard(dataUrl,`사진${idx+1}`);
+        })
+      }
+    }
+
+    function addPhotoCard(src,label){
+      const card = document.createElement('div');card.className='photo-card';
+      const img = document.createElement('img');img.className='photo';
+      if(src) img.src = src; else img.alt = label;
+      img.loading='lazy';
+      card.appendChild(img);
+      const btnWrap = document.createElement('div');btnWrap.className='btn-block';
+      const btn = document.createElement('button');btn.className='cta ripple';btn.textContent='위 실험이 궁금하다면?';
+      btn.addEventListener('click',()=>{ showPage('more'); });
+      btnWrap.appendChild(btn);
+      card.appendChild(btnWrap);
+      gallery.appendChild(card);
+    }
+
+    uploader.addEventListener('change',async (e)=>{
+      const files = Array.from(e.target.files).slice(0,6);
+      const arr = [];
+      for(const f of files){
+        arr.push(await toDataURL(f));
+      }
+      localStorage.setItem('steam_images', JSON.stringify(arr));
+      renderGallery();
+    });
+
+    function toDataURL(file){
+      return new Promise((res,rej)=>{
+        const r = new FileReader();
+        r.onload = ()=>res(r.result);
+        r.onerror=rej;
+        r.readAsDataURL(file);
+      })
+    }
+
+    // ---------- Participants storage & display ----------
+    function getParticipants(){
+      return JSON.parse(localStorage.getItem('steam_participants')||'[]');
+    }
+    function saveParticipant(name){
+      const list = getParticipants();
+      list.push({name,ts:Date.now()});
+      localStorage.setItem('steam_participants', JSON.stringify(list));
+      renderParticipants();
+    }
+    function renderParticipants(){
+      const box = document.getElementById('participants');
+      const list = getParticipants();
+      if(list.length===0){box.innerHTML='<div class="muted">참여한 학생이 아직 없습니다.</div>';return}
+      box.innerHTML = list.slice().reverse().map(it=>`<div style="padding:8px;border-radius:8px;background:#f8fbff;margin-bottom:6px">${escapeHtml(it.name)} <div class="small muted">${new Date(it.ts).toLocaleString()}</div></div>`).join('');
+    }
+
+    function escapeHtml(str){return str.replace(/[&<>"']/g, s=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;" })[s]);}
+
+    // ---------- Event page logic ----------
+    const studentInput = document.getElementById('student');
+    const readCheckbox = document.getElementById('read-checkbox');
+    const eventNext = document.getElementById('event-next');
+    const eventPrev = document.getElementById('event-prev');
+    const openExternal = document.getElementById('open-external');
+    const externalConfirm = document.getElementById('external-confirm');
+
+    function updateEventNext(){
+      eventNext.disabled = !(studentInput.value.trim() && readCheckbox.checked && localStorage.getItem('external_confirmed')==='yes');
+    }
+    studentInput.addEventListener('input',updateEventNext);
+    readCheckbox.addEventListener('change',updateEventNext);
+
+    eventPrev.addEventListener('click',()=>{ showPage('home'); });
+
+    openExternal.addEventListener('click',()=>{
+      // open specified page in new tab
+      window.open('https://laranahyun-hub.github.io/2025STEAM/','_blank');
+      alert('새 탭으로 열었습니다. 외부 페이지에서 "결과보기"를 눌러주세요. 완료 후 앱으로 돌아와 "결과보기 완료(확인)" 버튼을 눌러주세요.');
+    });
+
+    externalConfirm.addEventListener('click',()=>{
+      // can't verify external action: use manual confirmation
+      localStorage.setItem('external_confirmed','yes');
+      updateEventNext();
+      alert('확인되었습니다. 이제 다음 버튼이 활성화되면 진행하세요.');
+    });
+
+    eventNext.addEventListener('click',()=>{
+      // Save student and go to aroma start page
+      if(studentInput.value.trim()){
+        localStorage.setItem('current_student', studentInput.value.trim());
+      }
+      // As requested, open https://laranahyun-hub.github.io/GPTI/ before enabling next step
+      window.open('https://laranahyun-hub.github.io/GPTI/','_blank');
+      showPage('aroma');
+    });
+
+    // ---------- Aroma page ----------
+    const aromaDone = document.getElementById('aroma-done');
+    const aromaNext = document.getElementById('aroma-next');
+    const aromaPrev = document.getElementById('aroma-prev');
+    aromaDone.addEventListener('change',()=>{aromaNext.disabled=!aromaDone.checked});
+    aromaPrev.addEventListener('click',()=>showPage('event'));
+    aromaNext.addEventListener('click',()=>showPage('heart'));
+
+    // ---------- Heart rate page ----------
+    const hr1 = document.getElementById('hr1');
+    const hr2 = document.getElementById('hr2');
+    const compareBtn = document.getElementById('compare-btn');
+    const hrResult = document.getElementById('hr-result');
+    const heartNext = document.getElementById('heart-next');
+    const heartPrev = document.getElementById('heart-prev');
+
+    compareBtn.addEventListener('click',()=>{
+      const v1 = parseFloat(hr1.value);
+      const v2 = parseFloat(hr2.value);
+      if(isNaN(v1)||isNaN(v2)){
+        hrResult.textContent='두 입력란에 숫자를 모두 입력해 주세요.'; return;
+      }
+      if(v1 < v2){ hrResult.textContent='심박수가 증가하셨네요! 긴장하셨나봐요....'; }
+      else if(v1 > v2){ hrResult.textContent='심박수가 감소하셨네요! 향이 마음에 드시나봐요.'; }
+      else { hrResult.textContent='심박수에 변화가 없네요!'; }
+      heartNext.disabled=false;
+    });
+    heartPrev.addEventListener('click',()=>showPage('aroma'));
+    heartNext.addEventListener('click',()=>{
+      // go to celebration
+      showPage('submit');
+      playFanfare();
+      startConfetti();
+    });
+
+    // ---------- Submit / Cancel ----------
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+
+    cancelBtn.addEventListener('click',()=>{
+      // Clear temporary data and return to student input
+      if(confirm('지금까지의 데이터를 모두 삭제하고 학번/이름 입력 페이지로 돌아가시겠습니까?')){
+        clearSessionData();
+        showPage('event');
+        studentInput.value=''; readCheckbox.checked=false; localStorage.removeItem('external_confirmed'); updateEventNext();
+      }
+    });
+
+    submitBtn.addEventListener('click',()=>{
+      const current = localStorage.getItem('current_student')||studentInput.value.trim();
+      if(!current){ alert('학번/이름이 필요합니다. 이벤트 페이지에서 입력하세요.'); showPage('event'); return; }
+      saveParticipant(current);
+      // mark submitted so we can show confirmation
+      localStorage.setItem('last_submission', JSON.stringify({name:current,ts:Date.now()}));
+      showPage('done');
+    });
+
+    function clearSessionData(){
+      localStorage.removeItem('current_student');
+      localStorage.removeItem('external_confirmed');
+      localStorage.removeItem('hr1');
+      localStorage.removeItem('hr2');
+      hr1.value=''; hr2.value=''; hrResult.textContent='';
+    }
+
+    // ---------- confetti (simple) ----------
+    const confettiCanvas = document.getElementById('confetti');
+    confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight;
+    let confettiPieces = [];
+    function startConfetti(){
+      confettiPieces = [];
+      for(let i=0;i<80;i++) confettiPieces.push({x:Math.random()*confettiCanvas.width,y:Math.random()*-confettiCanvas.height*2, r:Math.random()*6+4, d:Math.random()*3+1, tilt:Math.random()*10-10, color:`hsl(${Math.random()*60+200},90%,60%)`});
+      requestAnimationFrame(drawConfetti);
+      try{ document.getElementById('fanfare')?.play(); }catch(e){}
+      setTimeout(()=>{ confettiPieces=[]; clearCanvas(); },4500);
+    }
+    function drawConfetti(){
+      const ctx = confettiCanvas.getContext('2d');
+      ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+      for(const p of confettiPieces){
+        ctx.beginPath(); ctx.fillStyle=p.color; ctx.ellipse(p.x,p.y,p.r,p.r/2, p.tilt,0,Math.PI*2); ctx.fill();
+        p.y += p.d; p.x += Math.sin(p.y/15);
+      }
+      if(confettiPieces.length) requestAnimationFrame(drawConfetti);
+    }
+    function clearCanvas(){ const ctx=confettiCanvas.getContext('2d'); ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); }
+
+    function playFanfare(){
+      const a = document.getElementById('fanfare');
+      if(a){ try{ a.currentTime=0; a.play(); } catch(e){} }
+    }
+
+    // ---------- init ----------
+    function init(){ renderGallery(); renderParticipants(); bindNavButtons(); }
+    function bindNavButtons(){
+      // keyboard shortcuts for dev (not necessary on mobile)
+    }
+
+    // accessibility small refinement
+    window.addEventListener('resize',()=>{ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; });
+
+    init();
+  </script>
 </body>
 </html>
