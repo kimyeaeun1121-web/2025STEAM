@@ -17,16 +17,25 @@
     .step.done{background:linear-gradient(90deg,#a0d4ff,#dfefff);color:var(--accent);border-color:transparent}
     .progress-label{margin-left:auto;font-size:13px;color:var(--muted)}
 
-    /* container */
-    .container{padding-top:64px;padding-bottom:80px}
+    /* container - padding adjusts depending on topbar presence */
+    .container{padding-top:12px;padding-bottom:80px}
+    body.topbar-active .container{padding-top:64px}
+
     .page{display:none;padding:18px;min-height:calc(100vh - 160px)}
     .page.active{display:block;animation:fadeIn .36s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
+    /* header variations */
     header{display:flex;flex-direction:column;gap:6px;padding:12px 18px;border-bottom:1px solid #eef6ff;background:linear-gradient(180deg,var(--soft),#fff)}
     .title{display:flex;align-items:center;justify-content:space-between}
     .title h2{margin:0;font-size:20px;color:var(--accent)}
     .banner{font-size:14px;color:var(--muted)}
+
+    /* centered page header shown when topbar hidden */
+    .centeredHeader{display:none;flex-direction:column;align-items:center;gap:2px;padding:12px 18px;background:linear-gradient(180deg,var(--soft),#fff);border-bottom:1px solid #eef6ff}
+    .centeredHeader.show{display:flex}
+    .centeredHeader h1{margin:0;font-size:20px;color:var(--accent)}
+    .centeredHeader p{margin:0;color:var(--muted);font-size:13px}
 
     h1,h2,h3{margin:8px 0}
     .subtitle{color:var(--muted);font-size:14px;margin-bottom:8px}
@@ -44,6 +53,16 @@
     .note{font-size:13px;color:var(--muted);margin-top:6px}
 
     iframe.embedded{width:100%;height:48vh;border:1px solid #e6eefb;border-radius:12px}
+
+    /* maximize button for iframe pages */
+    .iframe-tools{display:flex;justify-content:flex-end;margin-top:8px}
+    .maximizeBtn{padding:8px 10px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:13px}
+
+    /* overlay full-screen iframe */
+    #overlayFrame{position:fixed;inset:0;background:rgba(10,20,40,.85);display:none;z-index:9999;align-items:center;justify-content:center}
+    #overlayFrame.active{display:flex}
+    #overlayFrame iframe{width:96vw;height:92vh;border-radius:10px;border:0;background:#fff}
+    #overlayClose{position:fixed;top:18px;right:18px;background:#fff;border-radius:10px;padding:8px 10px;border:0;font-weight:700}
 
     /* gallery */
     .gallery{display:flex;flex-direction:column;gap:12px}
@@ -63,13 +82,18 @@
     .participants{margin-top:10px}
     .card{background:#fbfdff;padding:10px;border-radius:8px;border:1px solid #eef6ff}
 
+    /* MORE page list style */
+    .more-list{display:flex;flex-direction:column;gap:10px}
+    .more-hero{font-size:20px;font-weight:800;color:var(--accent);padding:12px;border-radius:10px}
+    .more-item{padding:12px;border-radius:10px;background:#fff;border:1px solid #eef6ff;font-weight:700}
+
     @media(min-width:420px){.container{max-width:420px;margin:0 auto}}
   </style>
 </head>
 <body>
 
   <!-- top progress (B style) -->
-  <div class="topbar">
+  <div class="topbar" id="topbar" style="display:none">
     <div class="steps" id="steps">
       <div class="step" data-step="1">1</div>
       <div class="step" data-step="2">2</div>
@@ -79,6 +103,12 @@
       <div class="step" data-step="6">6</div>
     </div>
     <div class="progress-label" id="progressLabel">Step 1 / 6</div>
+  </div>
+
+  <!-- centered header shown when topbar is hidden -->
+  <div class="centeredHeader show" id="centeredHeader">
+    <h1>STEAM</h1>
+    <p>수리과학융합부</p>
   </div>
 
   <div class="container">
@@ -103,9 +133,9 @@
     <header id="homeHeader">
       <div class="title">
         <h2>STEAM</h2>
-        <div class="small">모바일 전용</div>
+        <div class="header-small" id="headerSmall">모바일 전용</div>
       </div>
-      <div class="banner">창의 융합 체험</div>
+      <div class="banner" id="headerBanner">창의 융합 체험</div>
     </header>
 
     <main class="page" id="home">
@@ -143,7 +173,8 @@
       <div class="page" id="page2">
         <h2>2025 STEAM 안내</h2>
         <p class="subtitle">아래 창에서 내용을 확인하고 체크박스를 눌러주세요</p>
-        <iframe class="embedded" src="https://laranahyun-hub.github.io/2025STEAM/" title="2025STEAM"></iframe>
+        <iframe class="embedded" id="iframe2" src="https://laranahyun-hub.github.io/2025STEAM/" title="2025STEAM"></iframe>
+        <div class="iframe-tools"><button class="maximizeBtn" data-iframe="#iframe2">최대화 보기</button></div>
         <label style="margin-top:8px"><input type="checkbox" id="chk2"> 위 내용을 읽어보았습니다.</label>
         <div class="controls">
           <button class="btn secondary" id="p2-prev">이전</button>
@@ -155,7 +186,8 @@
       <div class="page" id="page3">
         <h2>GPTI 확인</h2>
         <p class="subtitle">아래 창에서 결과를 확인하세요 (조건 없음)</p>
-        <iframe class="embedded" src="https://laranahyun-hub.github.io/GPTI/" title="GPTI"></iframe>
+        <iframe class="embedded" id="iframe3" src="https://laranahyun-hub.github.io/GPTI/" title="GPTI"></iframe>
+        <div class="iframe-tools"><button class="maximizeBtn" data-iframe="#iframe3">최대화 보기</button></div>
         <div class="controls">
           <button class="btn secondary" id="p3-prev">이전</button>
           <button class="btn" id="p3-next">다음</button>
@@ -216,10 +248,40 @@
 
     <!-- MORE -->
     <section class="page" id="more">
-      <h2>더보기</h2>
-      <p class="subtitle">참여 학생 목록</p>
-      <div id="listContainer" class="participants"></div>
+      <div class="more-list">
+        <div class="more-hero">2025 STEAM 더 알아보기</div>
+        <button class="more-item" id="more-experiment">실험 상세보기</button>
+        <button class="more-item" id="more-participants">참여 인원 확인하기</button>
+        <button class="more-item" id="more-info-button">2025 STEAM 소개 페이지로</button>
+      </div>
     </section>
+
+    <!-- More: experiment detail page -->
+    <section class="page" id="experimentDetail">
+      <h2>실험 상세보기</h2>
+      <p class="subtitle">실험실험실험</p>
+      <div class="controls"><button class="btn secondary" id="exp-back">뒤로</button></div>
+    </section>
+
+    <!-- More: info page for hero -->
+    <section class="page" id="moreInfo">
+      <h2>2025 STEAM 더 알아보기</h2>
+      <p class="subtitle">야이야이</p>
+      <div class="controls"><button class="btn secondary" id="info-back">뒤로</button></div>
+    </section>
+
+    <!-- New participants list page -->
+    <section class="page" id="participantsList">
+      <h2>참여 인원</h2>
+      <div id="participantsContainer" style="margin-top:12px"></div>
+      <div class="controls" style="margin-top:12px"><button class="btn secondary" id="participants-back">뒤로</button></div>
+    </section>
+
+    <!-- overlay full-screen iframe -->
+    <div id="overlayFrame">
+      <button id="overlayClose">닫기</button>
+      <iframe id="overlayIfr" src="" title="fullscreen-iframe"></iframe>
+    </div>
 
   </div>
 
@@ -242,9 +304,29 @@
     const homeMain = document.getElementById('home');
     const eventRoot = document.getElementById('event-root');
     const morePage = document.getElementById('more');
+    const topbar = document.getElementById('topbar');
+    const centeredHeader = document.getElementById('centeredHeader');
+    const headerBanner = document.getElementById('headerBanner');
+    const headerSmall = document.getElementById('headerSmall');
+
+    function showTopbar(show){
+      if(show){
+        topbar.style.display='flex';
+        document.body.classList.add('topbar-active');
+        centeredHeader.classList.remove('show');
+        // hide regular header while topbar is active to avoid double spacing
+        homeHeader.style.display='none';
+      } else {
+        topbar.style.display='none';
+        document.body.classList.remove('topbar-active');
+        centeredHeader.classList.add('show');
+        // show regular header on normal pages
+        homeHeader.style.display='flex';
+      }
+    }
 
     // show splash1 initially
-    hideAllPages(); document.getElementById('splash1').classList.add('active'); homeHeader.style.display='none';
+    hideAllPages(); document.getElementById('splash1').classList.add('active'); homeHeader.style.display='none'; showTopbar(false);
 
     // splash interactions
     document.getElementById('splash1').addEventListener('click', ()=>{
@@ -255,28 +337,37 @@
       hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active');
       // set nav active
       setNav('home');
+      // ensure event-root hidden
+      eventRoot.style.display='none';
+      showTopbar(false);
+      // hide banner/small on home as requested
+      headerBanner.style.display='none'; headerSmall.style.display='none';
     });
 
     // NAV
-    document.getElementById('nav-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); });
-    document.getElementById('nav-more').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); refreshParticipantsUI(); });
-    document.getElementById('nav-event').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; eventRoot.style.display='block'; // show first event page
-      // show event page1
+    document.getElementById('nav-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; });
+    document.getElementById('nav-more').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); refreshParticipantsUI(); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; });
+    document.getElementById('nav-event').addEventListener('click', ()=>{ hideAllPages(); // show event root as a block-level section only when in event
+      homeHeader.style.display='none'; // hide normal header to prevent spacing clash
+      eventRoot.style.display='block';
+      // show first event page
       eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-      document.getElementById('page1').classList.add('active'); setNav('event'); updateTop(1);
+      document.getElementById('page1').classList.add('active'); setNav('event'); updateTopLocal(1); showTopbar(true);
+      // ensure banner/small hidden while in event
+      headerBanner.style.display='none'; headerSmall.style.display='none';
     });
 
     function setNav(which){ document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active')); if(which==='home') document.getElementById('nav-home').classList.add('active'); if(which==='more') document.getElementById('nav-more').classList.add('active'); if(which==='event') document.getElementById('nav-event').classList.add('active'); }
 
     // gallery buttons to go to more (실험 페이지)
-    document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); }));
+    document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; }));
 
     // ---------- Event flow logic with top step indicator ----------
     const stepsEls = document.querySelectorAll('.step');
     const progressLabel = document.getElementById('progressLabel');
-    function updateTop(step){
+    function updateTopLocal(step){
       stepsEls.forEach(el=>{ const s = Number(el.getAttribute('data-step')); el.classList.remove('active','done'); if(step> s) el.classList.add('done'); if(step===s) el.classList.add('active'); });
-      progressLabel.textContent = `Step ${step} / 6`;
+      document.getElementById('progressLabel').textContent = step > 0 ? `Step ${step} / 6` : ''
     }
 
     // Page1
@@ -285,10 +376,10 @@
     const p1prev = document.getElementById('p1-prev');
     stuInput.addEventListener('input', ()=>{ p1next.disabled = !stuInput.value.trim(); });
     p1next.addEventListener('click', ()=>{ localStorage.setItem('current_student', stuInput.value.trim()); // show page2
-      eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTop(2);
+      eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTopLocal(2);
     });
     p1prev.addEventListener('click', ()=>{ // back to home
-      hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); updateTop(0);
+      hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); updateTopLocal(0); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
     });
 
     // Page2
@@ -296,22 +387,22 @@
     const p2next = document.getElementById('p2-next');
     const p2prev = document.getElementById('p2-prev');
     chk2.addEventListener('change', ()=>{ p2next.disabled = !chk2.checked; });
-    p2prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); updateTop(1); });
-    p2next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTop(3); });
+    p2prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); updateTopLocal(1); });
+    p2next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTopLocal(3); });
 
     // Page3
     const p3prev = document.getElementById('p3-prev');
     const p3next = document.getElementById('p3-next');
-    p3prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTop(2); });
-    p3next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTop(4); });
+    p3prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTopLocal(2); });
+    p3next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTopLocal(4); });
 
     // Page4
     const chk4 = document.getElementById('chk4');
     const p4prev = document.getElementById('p4-prev');
     const p4next = document.getElementById('p4-next');
     chk4.addEventListener('change', ()=>{ p4next.disabled = !chk4.checked; });
-    p4prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTop(3); });
-    p4next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page5').classList.add('active'); updateTop(5); });
+    p4prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTopLocal(3); });
+    p4next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page5').classList.add('active'); updateTopLocal(5); });
 
     // Page5
     const hrBefore = document.getElementById('hrBefore');
@@ -329,8 +420,8 @@
       else hrText.textContent = '심박수에 변화가 없네요.';
       p5next.disabled = false;
     });
-    p5prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTop(4); });
-    p5next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page6').classList.add('active'); updateTop(6); });
+    p5prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTopLocal(4); });
+    p5next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page6').classList.add('active'); updateTopLocal(6); });
 
     // Page6 submit/cancel
     const p6cancel = document.getElementById('p6-cancel');
@@ -346,7 +437,7 @@
         stuInput.value=''; p1next.disabled = true;
         refreshParticipantsUI();
         // go home
-        hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home');
+        hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
       }
     });
     p6submit.addEventListener('click', ()=>{
@@ -356,14 +447,41 @@
       const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]');
       arr.push({name, ts: Date.now()});
       localStorage.setItem('steam_participants', JSON.stringify(arr));
-      refreshParticipantsUI(); playFanfare(); startConfetti(); setTimeout(()=>{ hideAllPages(); document.getElementById('donePage').classList.add('active'); },900);
+      refreshParticipantsUI(); playFanfare(); startConfetti(); setTimeout(()=>{ hideAllPages(); document.getElementById('donePage').classList.add('active'); // leaving event flow
+        eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
+      },900);
     });
 
-    document.getElementById('done-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); });
+    document.getElementById('done-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; });
 
-    // MORE participants UI
-    function refreshParticipantsUI(){ const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]'); const cont = document.getElementById('listContainer'); if(arr.length===0) cont.innerHTML='<div class="card">참여한 학생이 없습니다.</div>'; else cont.innerHTML = arr.slice().reverse().map(x=>`<div class="card">${escapeHtml(x.name)}<div class="small">${new Date(x.ts).toLocaleString()}</div></div>`).join(''); }
-    function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
+    // MORE participants UI - now renders into participantsContainer when navigated
+    function refreshParticipantsUI(){ const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]'); const cont = document.getElementById('participantsContainer'); if(!cont) return; if(arr.length===0) cont.innerHTML='<div class="card">참여한 학생이 없습니다.</div>'; else cont.innerHTML = arr.slice().reverse().map(x=>`<div class="card">${escapeHtml(x.name)}<div class="small">${new Date(x.ts).toLocaleString()}</div></div>`).join(''); }
+    function escapeHtml(s){ return (s||'').toString().replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":"&#39;"})[c]); }
+
+    // wire more page buttons
+    document.getElementById('more-experiment').addEventListener('click', ()=>{
+      hideAllPages(); document.getElementById('experimentDetail').classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
+    });
+    document.getElementById('more-participants').addEventListener('click', ()=>{
+      hideAllPages(); document.getElementById('participantsList').classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; refreshParticipantsUI();
+    });
+    document.getElementById('more-info-button').addEventListener('click', ()=>{
+      hideAllPages(); document.getElementById('moreInfo').classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
+    });
+
+    document.getElementById('participants-back').addEventListener('click', ()=>{ hideAllPages(); morePage.classList.add('active'); setNav('more'); });
+    document.getElementById('info-back').addEventListener('click', ()=>{ hideAllPages(); morePage.classList.add('active'); setNav('more'); });
+    document.getElementById('exp-back').addEventListener('click', ()=>{ hideAllPages(); morePage.classList.add('active'); setNav('more'); });
+
+    // overlay iframe maximize
+    const overlay = document.getElementById('overlayFrame');
+    const overlayIfr = document.getElementById('overlayIfr');
+    document.querySelectorAll('.maximizeBtn').forEach(b=> b.addEventListener('click', (e)=>{
+      const sel = e.currentTarget.getAttribute('data-iframe');
+      const ifr = document.querySelector(sel);
+      if(!ifr) return; overlayIfr.src = ifr.src; overlay.classList.add('active');
+    }));
+    document.getElementById('overlayClose').addEventListener('click', ()=>{ overlay.classList.remove('active'); overlayIfr.src=''; });
 
     // ---------- Confetti ----------
     const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d'); function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; } window.addEventListener('resize', resizeCanvas); resizeCanvas(); let particles = [];
@@ -374,16 +492,12 @@
     // fanfare
     function playFanfare(){ try{ const a = new Audio(); a.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA='; a.play().catch(()=>{}); }catch(e){} }
 
-    // helper to update top step visuals when event flow starts
-    function updateTop(n){ if(typeof n !== 'number') n = 0; updateTopLocal(n); }
-    function updateTopLocal(step){ document.querySelectorAll('.step').forEach(el=>{ const s = Number(el.getAttribute('data-step')); el.classList.remove('active','done'); if(step> s) el.classList.add('done'); if(step===s) el.classList.add('active'); }); document.getElementById('progressLabel').textContent = step > 0 ? `Step ${step} / 6` : '' }
+    // expose for debug
+    window.startEventFlow = ()=>{ hideAllPages(); homeHeader.style.display='none'; eventRoot.style.display='block'; eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); setNav('event'); updateTopLocal(1); showTopbar(true); };
 
     // init
-    refreshParticipantsUI(); // ensure gallery buttons work
-    document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); }));
-
-    // expose for debug
-    window.startEventFlow = ()=>{ hideAllPages(); homeHeader.style.display='flex'; eventRoot.style.display='block'; eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); setNav('event'); updateTopLocal(1); };
+    // ensure gallery buttons work
+    document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; }));
 
   </script>
 </body>
