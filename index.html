@@ -123,7 +123,7 @@
       <div class="banner" id="headerBanner">창의 융합 체험</div>
     </header>
 
-   <main class="page" id="home">
+ <main class="page" id="home">
   <div class="gallery" id="gallery">
 
     <!-- 상단 소개문 이미지 (버튼 없음) -->
@@ -134,59 +134,59 @@
       </div>
     </div>
 
-    <!-- 하단 활동 이미지 7장 -->
+    <!-- 활동 이미지 7장 -->
     <div class="photo-card">
-      <div class="photo">
+      <div class="photo" style="height:auto;">
         <img src="https://raw.githubusercontent.com/kimyeaeun1121-web/2025STEAM/main/%EA%B3%BC%EC%B2%9C%EA%B3%BC%ED%95%99%EA%B4%80.png" 
-             alt="과천과학관" style="width:100%; height:100%; object-fit:cover;">
+             alt="과천과학관" style="width:100%; height:auto; object-fit:contain;">
       </div>
       <button class="cta-small" data-target="activity-gwacheon">위 활동이 궁금하다면?</button>
     </div>
 
     <div class="photo-card">
-      <div class="photo">
+      <div class="photo" style="height:auto;">
         <img src="https://raw.githubusercontent.com/kimyeaeun1121-web/2025STEAM/main/%EB%8F%99%EC%95%84%EB%A6%AC%EC%97%B0%ED%95%A9.png" 
-             alt="동아리연합" style="width:100%; height:100%; object-fit:cover;">
+             alt="동아리연합" style="width:100%; height:auto; object-fit:contain;">
       </div>
       <button class="cta-small" data-target="activity-club-union">위 활동이 궁금하다면?</button>
     </div>
 
     <div class="photo-card">
-      <div class="photo">
+      <div class="photo" style="height:auto;">
         <img src="https://raw.githubusercontent.com/kimyeaeun1121-web/2025STEAM/main/%EB%8F%99%EC%95%84%EB%A6%AC%EC%B6%95%EC%A0%9C.png" 
-             alt="동아리축제" style="width:100%; height:100%; object-fit:cover;">
+             alt="동아리축제" style="width:100%; height:auto; object-fit:contain;">
       </div>
       <button class="cta-small" data-target="activity-local-festival">위 활동이 궁금하다면?</button>
     </div>
 
     <div class="photo-card">
-      <div class="photo">
-        <img src="https://raw.githubusercontent.com/kimyeaeun1121-web/2025STEAM/main/%EA%B0%9C%EB%B3%84%EC%8B%A04.png" 
-             alt="개별실험1" style="width:100%; height:100%; object-fit:cover;">
+      <div class="photo" style="height:auto;">
+        <img src="https://raw.githubusercontent.com/kimyeaeun1121-web/2025STEAM/main/%EA%B0%9C%EB%B3%84%EC%8B%A4%ED%97%981.png" 
+             alt="개별실험1" style="width:100%; height:auto; object-fit:contain;">
       </div>
       <button class="cta-small" data-target="activity-exp1">위 활동이 궁금하다면?</button>
     </div>
 
     <div class="photo-card">
-      <div class="photo">
+      <div class="photo" style="height:auto;">
         <img src="https://raw.githubusercontent.com/kimyeaeun1121-web/2025STEAM/main/%EA%B0%9C%EB%B3%84%EC%8B%A05.png" 
-             alt="개별실험2" style="width:100%; height:100%; object-fit:cover;">
+             alt="개별실험2" style="width:100%; height:auto; object-fit:contain;">
       </div>
       <button class="cta-small" data-target="activity-exp2">위 활동이 궁금하다면?</button>
     </div>
 
     <div class="photo-card">
-      <div class="photo">
+      <div class="photo" style="height:auto;">
         <img src="https://raw.githubusercontent.com/kimyeaeun1121-web/2025STEAM/main/%EA%B0%9C%EB%B3%84%EC%8B%A06.png" 
-             alt="개별실험3" style="width:100%; height:100%; object-fit:cover;">
+             alt="개별실험3" style="width:100%; height:auto; object-fit:contain;">
       </div>
       <button class="cta-small" data-target="activity-exp3">위 활동이 궁금하다면?</button>
     </div>
 
     <div class="photo-card">
-      <div class="photo">
+      <div class="photo" style="height:auto;">
         <img src="https://raw.githubusercontent.com/kimyeaeun1121-web/2025STEAM/main/%EA%B0%9C%EB%B3%84%EC%8B%A07.png" 
-             alt="개별실험4" style="width:100%; height:100%; object-fit:cover;">
+             alt="개별실험4" style="width:100%; height:auto; object-fit:contain;">
       </div>
       <button class="cta-small" data-target="activity-exp4">위 활동이 궁금하다면?</button>
     </div>
@@ -194,7 +194,7 @@
   </div>
 </main>
 
-<!-- 활동 상세보기 페이지 예시 -->
+<!-- 활동 상세보기 페이지 -->
 <section class="page" id="activity-gwacheon">
   <h2>과천과학관 견학</h2>
   <p class="subtitle">야이야이</p>
@@ -238,6 +238,39 @@
 </section>
 
 <script>
+function hideAllPages(){
+  document.querySelectorAll('.page').forEach(p=>{
+    p.classList.remove('active');
+    p.style.display='none';
+  });
+}
+
+function showPage(pageId){
+  const page = document.getElementById(pageId);
+  if(!page) return;
+  hideAllPages();
+  page.style.display='block';
+  page.classList.add('active');
+}
+
+function goBackToHome() {
+  showPage('home');
+  homeHeader.style.display='flex';
+  setNav('home');
+}
+
+// 버튼 클릭 이벤트
+document.querySelectorAll('.cta-small').forEach(btn => {
+  btn.addEventListener('click', ()=>{
+    const target = btn.getAttribute('data-target');
+    if (!target) return;
+    showPage(target);
+    homeHeader.style.display='flex';
+    setNav('more');
+  });
+});
+</script>
+
 // 홈으로 돌아가기 함수
 function goBackToHome() {
   hideAllPages();
@@ -913,5 +946,6 @@ document.querySelectorAll('.cta-small').forEach(btn => {
   </script>
 </body>
 </html>
+
 
 
