@@ -92,33 +92,35 @@
   </div>
 
 <div class="centeredHeader show" id="centeredHeader">
-  <h1>STEAM</h1>
-  <p>수리과학융합부</p>
-</div> 
+    <h1>STEAM</h1>
+    <p>수리과학융합부</p>
+  </div>
 
-if(document.getElementById('homeHeader')){
-  document.getElementById('homeHeader').style.display = 'none';
-}
+  <div class="container">
+    <!-- SPLASH 1 -->
+    <div class="page active" id="splash1">
+      <div class="center">
+        <h1 style="color:var(--accent)">안녕하세요?</h1>
+        <p class="subtitle">(화면 아무곳이나 터치하세요)</p>
+      </div>
+    </div>
 
-// splash2 클릭 시
-document.getElementById('splash2').addEventListener('click', ()=>{
-  hideAllPages();
-  const homeMain = document.getElementById('home');
-  if(homeMain) homeMain.classList.add('active');
+    <!-- SPLASH 2 -->
+    <div class="page" id="splash2">
+      <div class="center">
+        <h1 style="color:var(--accent)">2025 STEAM입니다!</h1>
+        <p class="subtitle">즐거운 체험이 되시길 바랍니다!</p>
+      </div>
+    </div>
 
-  const homeHeader = document.getElementById('homeHeader');
-  if(homeHeader) homeHeader.style.display='flex';
-
-  setNav('home');
-  const eventRoot = document.getElementById('event-root');
-  if(eventRoot) eventRoot.style.display='none';
-  showTopbar(false);
-
-  const headerBanner = document.getElementById('headerBanner');
-  if(headerBanner) headerBanner.style.display='none';
-  const headerSmall = document.getElementById('headerSmall');
-  if(headerSmall) headerSmall.style.display='none';
-});
+    <!-- HOME -->
+    <header id="homeHeader">
+      <div class="title">
+        <h2>STEAM</h2>
+        <div class="header-small" id="headerSmall">모바일 전용</div>
+      </div>
+      <div class="banner" id="headerBanner">창의 융합 체험</div>
+    </header>
 
 <main class="page" id="home">
   <div class="gallery" id="gallery">
@@ -837,6 +839,7 @@ document.getElementById('splash2').addEventListener('click', ()=>{
   </script>
 </body>
 </html>
+
 
 
 
