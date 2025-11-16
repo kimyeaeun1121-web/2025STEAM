@@ -96,22 +96,31 @@
   <p>수리과학융합부</p>
 </div> 
 
-  <div class="container">
-    <!-- SPLASH 1 -->
-    <div class="page active" id="splash1">
-      <div class="center">
-        <h1 style="color:var(--accent)">안녕하세요?</h1>
-        <p class="subtitle">(화면 아무곳이나 터치하세요)</p>
-      </div>
-    </div>
+// 기존 코드: homeHeader.style.display='none';
+if(document.getElementById('homeHeader')){
+  document.getElementById('homeHeader').style.display = 'none';
+}
 
-    <!-- SPLASH 2 -->
-    <div class="page" id="splash2">
-      <div class="center">
-        <h1 style="color:var(--accent)">2025 STEAM입니다!</h1>
-        <p class="subtitle">즐거운 체험이 되시길 바랍니다!</p>
-      </div>
-    </div>
+// splash2 클릭 시
+document.getElementById('splash2').addEventListener('click', ()=>{
+  hideAllPages();
+  const homeMain = document.getElementById('home');
+  if(homeMain) homeMain.classList.add('active');
+
+  // 안전하게 homeHeader 처리
+  const homeHeader = document.getElementById('homeHeader');
+  if(homeHeader) homeHeader.style.display='flex';
+
+  setNav('home');
+  const eventRoot = document.getElementById('event-root');
+  if(eventRoot) eventRoot.style.display='none';
+  showTopbar(false);
+
+  const headerBanner = document.getElementById('headerBanner');
+  if(headerBanner) headerBanner.style.display='none';
+  const headerSmall = document.getElementById('headerSmall');
+  if(headerSmall) headerSmall.style.display='none';
+});
 
 <main class="page" id="home">
   <div class="gallery" id="gallery">
@@ -830,6 +839,7 @@
   </script>
 </body>
 </html>
+
 
 
 
