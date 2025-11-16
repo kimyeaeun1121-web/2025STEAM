@@ -5,93 +5,79 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>2025 STEAM - Mobile</title>
   <style>
-    :root{--bg:#ffffff;--accent:#0b66ff;--soft:#f3f7ff;--muted:#6d7b8a}
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:#111;-webkit-text-size-adjust:100%}
-
-    /* top progress (B: circular) */
-    .topbar{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.85));z-index:120}
-    .steps{display:flex;gap:8px;align-items:center}
-    .step{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #e6eefb;color:var(--muted);font-weight:700;font-size:13px;background:#fff}
-    .step.active{border-color:var(--accent);background:linear-gradient(135deg,var(--accent),#3fa0ff);color:#fff;box-shadow:0 6px 18px rgba(11,102,255,.12)}
-    .step.done{background:linear-gradient(90deg,#a0d4ff,#dfefff);color:var(--accent);border-color:transparent}
-    .progress-label{margin-left:auto;font-size:13px;color:var(--muted)}
-
-    /* container - padding adjusts depending on topbar presence */
-    .container{padding-top:12px;padding-bottom:80px}
-    body.topbar-active .container{padding-top:64px}
-
-    .page{display:none;padding:18px;min-height:calc(100vh - 160px)}
-    .page.active{display:block;animation:fadeIn .36s ease}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-
-    /* header variations */
-    header{display:flex;flex-direction:column;gap:6px;padding:12px 18px;border-bottom:1px solid #eef6ff;background:linear-gradient(180deg,var(--soft),#fff)}
-    .title{display:flex;align-items:center;justify-content:space-between}
-    .title h2{margin:0;font-size:20px;color:var(--accent)}
-    .banner{font-size:14px;color:var(--muted)}
-
-    /* centered page header shown when topbar hidden */
-    .centeredHeader{display:none;flex-direction:column;align-items:center;gap:2px;padding:12px 18px;background:linear-gradient(180deg,var(--soft),#fff);border-bottom:1px solid #eef6ff}
-    .centeredHeader.show{display:flex}
-    .centeredHeader h1{margin:0;font-size:20px;color:var(--accent)}
-    .centeredHeader p{margin:0;color:var(--muted);font-size:13px}
-
-    h1,h2,h3{margin:8px 0}
-    .subtitle{color:var(--muted);font-size:14px;margin-bottom:8px}
-
-    input[type=text],input[type=number]{width:100%;padding:12px;border-radius:12px;border:1px solid #e6eefb;font-size:16px}
-    label{display:block;margin:8px 0;color:var(--muted)}
-    .controls{display:flex;gap:8px;margin-top:16px}
-    .btn{flex:1;padding:12px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:15px;box-shadow:0 6px 18px rgba(11,102,255,.12);transition:transform .12s ease}
-    .btn:active{transform:scale(.98)}
-    .btn.secondary{background:#f3f7ff;color:var(--accent);border:1px solid #dbeeff}
-    .btn[disabled]{opacity:.5;transform:none;cursor:not-allowed}
-
-    .small{font-size:13px;color:var(--muted)}
-    .center{text-align:center}
-    .note{font-size:13px;color:var(--muted);margin-top:6px}
-
-    iframe.embedded{width:100%;height:48vh;border:1px solid #e6eefb;border-radius:12px}
-
-    /* maximize button for iframe pages */
-    .iframe-tools{display:flex;justify-content:flex-end;margin-top:8px}
-    .maximizeBtn{padding:8px 10px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:13px}
-
-    /* overlay full-screen iframe */
-    #overlayFrame{position:fixed;inset:0;background:rgba(10,20,40,.85);display:none;z-index:9999;align-items:center;justify-content:center}
-    #overlayFrame.active{display:flex}
-    #overlayFrame iframe{width:96vw;height:92vh;border-radius:10px;border:0;background:#fff}
-    #overlayClose{position:fixed;top:18px;right:18px;background:#fff;border-radius:10px;padding:8px 10px;border:0;font-weight:700}
-
-    /* gallery */
-    .gallery{display:flex;flex-direction:column;gap:12px}
-    .photo-card{background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(12,40,80,.04);padding:8px}
-    .photo{width:100%;height:200px;border-radius:10px;object-fit:cover;background:#e9f0ff}
-    .cta-small{display:block;margin:8px auto;padding:10px 14px;border-radius:999px;background:var(--accent);color:#fff;border:0}
-
-    /* confetti canvas */
-    #confetti{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:999}
-
-    /* bottom nav */
-    nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 6px;z-index:120}
-    nav.bottom button{background:transparent;border:0;font-weight:700;color:var(--muted);font-size:13px;padding:8px;flex:1}
-    nav.bottom button.active{color:var(--accent)}
-
-    /* participants list */
-    .participants{margin-top:10px}
-    .card{background:#fbfdff;padding:10px;border-radius:8px;border:1px solid #eef6ff}
-
-    /* MORE page list style */
-    .more-list{display:flex;flex-direction:column;gap:10px}
-    .more-hero{font-size:20px;font-weight:800;color:var(--accent);padding:12px;border-radius:10px}
-    .more-item{padding:12px;border-radius:10px;background:#fff;border:1px solid #eef6ff;font-weight:700}
-
-    @media(min-width:420px){.container{max-width:420px;margin:0 auto}}
+  :root{--bg:#ffffff;--accent:#0b66ff;--soft:#f3f7ff;--muted:#6d7b8a}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:system-ui,-apple-system,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:#111;-webkit-text-size-adjust:100%}
+  /* top progress (B: circular) */
+  .topbar{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.85));z-index:120}
+  .steps{display:flex;gap:8px;align-items:center}
+  .step{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #e6eefb;color:var(--muted);font-weight:700;font-size:13px;background:#fff}
+  .step.active{border-color:var(--accent);background:linear-gradient(135deg,var(--accent),#3fa0ff);color:#fff;box-shadow:0 6px 18px rgba(11,102,255,.12)}
+  .step.done{background:linear-gradient(90deg,#a0d4ff,#dfefff);color:var(--accent);border-color:transparent}
+  .progress-label{margin-left:auto;font-size:13px;color:var(--muted)}
+  /* container - padding adjusts depending on topbar presence */
+  .container{padding-top:12px;padding-bottom:80px}
+  body.topbar-active .container{padding-top:64px}
+  .page{display:none;padding:18px;min-height:calc(100vh - 160px)}
+  .page.active{display:block;animation:fadeIn .36s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  /* header variations */
+  header{display:flex;flex-direction:column;gap:6px;padding:12px 18px;border-bottom:1px solid #eef6ff;background:linear-gradient(180deg,var(--soft),#fff)}
+  .title{display:flex;align-items:center;justify-content:space-between}
+  .title h2{margin:0;font-size:20px;color:var(--accent)}
+  .banner{font-size:14px;color:var(--muted)}
+  /* centered page header shown when topbar hidden */
+  .centeredHeader{display:none;flex-direction:column;align-items:center;gap:2px;padding:12px 18px;background:linear-gradient(180deg,var(--soft),#fff);border-bottom:1px solid #eef6ff}
+  .centeredHeader.show{display:flex}
+  .centeredHeader h1{margin:0;font-size:20px;color:var(--accent)}
+  .centeredHeader p{margin:0;color:var(--muted);font-size:13px}
+  h1,h2,h3{margin:8px 0}
+  .subtitle{color:var(--muted);font-size:14px;margin-bottom:8px}
+  input[type=text],input[type=number]{width:100%;padding:12px;border-radius:12px;border:1px solid #e6eefb;font-size:16px}
+  label{display:block;margin:8px 0;color:var(--muted)}
+  .controls{display:flex;gap:8px;margin-top:16px}
+  .btn{flex:1;padding:12px;border-radius:12px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:15px;box-shadow:0 6px 18px rgba(11,102,255,.12);transition:transform .12s ease}
+  .btn:active{transform:scale(.98)}
+  .btn.secondary{background:#f3f7ff;color:var(--accent);border:1px solid #dbeeff}
+  .btn[disabled]{opacity:.5;transform:none;cursor:not-allowed}
+  .small{font-size:13px;color:var(--muted)}
+  .center{text-align:center}
+  .note{font-size:13px;color:var(--muted);margin-top:6px}
+  iframe.embedded{width:100%;height:48vh;border:1px solid #e6eefb;border-radius:12px}
+  /* maximize button for iframe pages */
+  .iframe-tools{display:flex;justify-content:flex-end;margin-top:8px}
+  .maximizeBtn{padding:8px 10px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:700;font-size:13px}
+  /* overlay full-screen iframe */
+  #overlayFrame{position:fixed;inset:0;background:rgba(10,20,40,.85);display:none;z-index:9999;align-items:center;justify-content:center}
+  #overlayFrame.active{display:flex}
+  #overlayFrame iframe{width:96vw;height:92vh;border-radius:10px;border:0;background:#fff}
+  #overlayClose{position:fixed;top:18px;right:18px;background:#fff;border-radius:10px;padding:8px 10px;border:0;font-weight:700}
+  /* gallery */
+  .gallery{display:flex;flex-direction:column;gap:12px}
+  .photo-card{background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(12,40,80,.04);padding:8px}
+  /* change: allow img inside .photo to not be cropped */
+  .photo{width:100%;border-radius:10px;overflow:hidden;background:#e9f0ff;padding:0}
+  .photo img{display:block;width:100%;height:auto;border-radius:10px;object-fit:contain}
+  .cta-small{display:block;margin:8px auto;padding:10px 14px;border-radius:999px;background:var(--accent);color:#fff;border:0}
+  /* confetti canvas */
+  #confetti{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:999}
+  /* bottom nav */
+  nav.bottom{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:10px 6px;z-index:120}
+  nav.bottom button{background:transparent;border:0;font-weight:700;color:var(--muted);font-size:13px;padding:8px;flex:1}
+  nav.bottom button.active{color:var(--accent)}
+  /* participants list */
+  .participants{margin-top:10px}
+  .card{background:#fbfdff;padding:10px;border-radius:8px;border:1px solid #eef6ff}
+  /* MORE page list style */
+  .more-list{display:flex;flex-direction:column;gap:10px}
+  .more-hero{font-size:20px;font-weight:800;color:var(--accent);padding:12px;border-radius:10px}
+  .more-item{padding:12px;border-radius:10px;background:#fff;border:1px solid #eef6ff;font-weight:700}
+  .activity-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .activity-item{padding:10px;border-radius:10px;background:#fff;border:1px solid #eef6ff;font-weight:700}
+  @media(min-width:420px){.container{max-width:420px;margin:0 auto}}
   </style>
 </head>
 <body>
-
   <!-- top progress (B style) -->
   <div class="topbar" id="topbar" style="display:none">
     <div class="steps" id="steps">
@@ -112,7 +98,6 @@
   </div>
 
   <div class="container">
-
     <!-- SPLASH 1 -->
     <div class="page active" id="splash1">
       <div class="center">
@@ -140,17 +125,63 @@
 
     <main class="page" id="home">
       <div class="gallery" id="gallery">
+        <!-- TOP: 소개문 사진 (버튼 없음) -->
         <div class="photo-card">
-          <div class="photo" id="img1">사진1</div>
-          <button class="cta-small" data-go="more">위 실험이 궁금하다면?</button>
+          <div class="photo" id="introPhoto">
+            <!-- 사용자가 업로드할 파일명: 소개문.jpg -->
+            <img src="소개문.jpg" alt="소개문" id="imgIntro">
+          </div>
+          <!-- no button under intro as requested -->
         </div>
+
+        <!-- Following: images with "위 활동이 궁금하다면?" 버튼 (각 버튼은 개별 활동 페이지로 이동) -->
         <div class="photo-card">
-          <div class="photo" id="img2">사진2</div>
-          <button class="cta-small" data-go="more">위 실험이 궁금하다면?</button>
+          <div class="photo" id="img1">
+            <img src="과천과학관.jpg" alt="과천과학관">
+          </div>
+          <button class="cta-small activity-btn" data-target="activity-gwacheon">위 활동이 궁금하다면?</button>
         </div>
+
         <div class="photo-card">
-          <div class="photo" id="img3">사진3</div>
-          <button class="cta-small" data-go="more">위 실험이 궁금하다면?</button>
+          <div class="photo" id="img2">
+            <img src="동아리연합.jpg" alt="동아리연합">
+          </div>
+          <button class="cta-small activity-btn" data-target="activity-clubunion">위 활동이 궁금하다면?</button>
+        </div>
+
+        <div class="photo-card">
+          <div class="photo" id="img3">
+            <img src="동아리축제.jpg" alt="동아리축제">
+          </div>
+          <button class="cta-small activity-btn" data-target="activity-localfestival">위 활동이 궁금하다면?</button>
+        </div>
+
+        <div class="photo-card">
+          <div class="photo" id="img4">
+            <img src="개별실험1.jpg" alt="개별실험1">
+          </div>
+          <button class="cta-small activity-btn" data-target="activity-exp1">위 활동이 궁금하다면?</button>
+        </div>
+
+        <div class="photo-card">
+          <div class="photo" id="img5">
+            <img src="개별실험2.jpg" alt="개별실험2">
+          </div>
+          <button class="cta-small activity-btn" data-target="activity-exp2">위 활동이 궁금하다면?</button>
+        </div>
+
+        <div class="photo-card">
+          <div class="photo" id="img6">
+            <img src="개별실험3.jpg" alt="개별실험3">
+          </div>
+          <button class="cta-small activity-btn" data-target="activity-exp3">위 활동이 궁금하다면?</button>
+        </div>
+
+        <div class="photo-card">
+          <div class="photo" id="img7">
+            <img src="개별실험4.jpg" alt="개별실험4">
+          </div>
+          <button class="cta-small activity-btn" data-target="activity-exp4">위 활동이 궁금하다면?</button>
         </div>
       </div>
     </main>
@@ -184,7 +215,7 @@
 
       <!-- PAGE 3 -->
       <div class="page" id="page3">
-        <h2>GPTI 확인</h2>
+        <h2>추천 향 테스트</h2>
         <p class="subtitle">아래 창에서 결과를 확인하세요 (조건 없음)</p>
         <iframe class="embedded" id="iframe3" src="https://laranahyun-hub.github.io/GPTI/" title="GPTI"></iframe>
         <div class="iframe-tools"><button class="maximizeBtn" data-iframe="#iframe3">최대화 보기</button></div>
@@ -234,7 +265,6 @@
           <button class="btn" id="p6-submit">제출</button>
         </div>
       </div>
-
     </section>
 
     <!-- DONE overlay page -->
@@ -250,24 +280,77 @@
     <section class="page" id="more">
       <div class="more-list">
         <div class="more-hero">2025 STEAM 더 알아보기</div>
-        <button class="more-item" id="more-experiment">실험 상세보기</button>
+        <!-- 변경: "실험 상세보기" -> "활동 상세보기" -->
+        <button class="more-item" id="more-experiment">활동 상세보기</button>
         <button class="more-item" id="more-participants">참여 인원 확인하기</button>
-        <button class="more-item" id="more-info-button">2025 STEAM 소개 페이지로</button>
+        <!-- 삭제: 2025 STEAM 소개 페이지로 -->
       </div>
     </section>
 
-    <!-- More: experiment detail page -->
-    <section class="page" id="experimentDetail">
-      <h2>실험 상세보기</h2>
-      <p class="subtitle">실험실험실험</p>
-      <div class="controls"><button class="btn secondary" id="exp-back">뒤로</button></div>
+    <!-- 활동 상세보기 목록 페이지 (activityList) -->
+    <section class="page" id="activityList">
+      <h2>활동 상세보기</h2>
+      <p class="subtitle">원하시는 활동을 선택하세요</p>
+      <div class="activity-list">
+        <button class="activity-item" data-target="activity-discussion">토론</button>
+        <button class="activity-item" data-target="activity-gwacheon">과천과학관 견학</button>
+        <button class="activity-item" data-target="activity-clubunion">동아리 연합</button>
+        <button class="activity-item" data-target="activity-localfestival">지역 동아리 축제</button>
+        <button class="activity-item" data-target="activity-exp1">개별 실험 1회차</button>
+        <button class="activity-item" data-target="activity-exp2">개별 실험 2회차</button>
+        <button class="activity-item" data-target="activity-exp3">개별 실험 3회차</button>
+        <button class="activity-item" data-target="activity-exp4">개별 실험 4회차</button>
+      </div>
+      <div class="controls" style="margin-top:12px"><button class="btn secondary" id="activity-back">뒤로</button></div>
     </section>
 
-    <!-- More: info page for hero -->
-    <section class="page" id="moreInfo">
-      <h2>2025 STEAM 더 알아보기</h2>
-      <p class="subtitle">야이야이</p>
-      <div class="controls"><button class="btn secondary" id="info-back">뒤로</button></div>
+    <!-- 각 활동별 개별 페이지들: 내용은 "야이야이" 로, 각각 다른 페이지로 만듦 -->
+    <section class="page" id="activity-discussion">
+      <h2>토론</h2>
+      <p class="subtitle">야이야이 (토론 페이지)</p>
+      <div class="controls"><button class="btn secondary" id="discussion-back">뒤로</button></div>
+    </section>
+
+    <section class="page" id="activity-gwacheon">
+      <h2>과천과학관 견학</h2>
+      <p class="subtitle">야이야이 (과천과학관 견학 페이지)</p>
+      <div class="controls"><button class="btn secondary" id="gwacheon-back">뒤로</button></div>
+    </section>
+
+    <section class="page" id="activity-clubunion">
+      <h2>동아리 연합</h2>
+      <p class="subtitle">야이야이 (동아리 연합 페이지)</p>
+      <div class="controls"><button class="btn secondary" id="clubunion-back">뒤로</button></div>
+    </section>
+
+    <section class="page" id="activity-localfestival">
+      <h2>지역 동아리 축제</h2>
+      <p class="subtitle">야이야이 (지역 동아리 축제 페이지)</p>
+      <div class="controls"><button class="btn secondary" id="localfestival-back">뒤로</button></div>
+    </section>
+
+    <section class="page" id="activity-exp1">
+      <h2>개별 실험 1회차</h2>
+      <p class="subtitle">야이야이 (개별 실험 1회차 페이지)</p>
+      <div class="controls"><button class="btn secondary" id="exp1-back">뒤로</button></div>
+    </section>
+
+    <section class="page" id="activity-exp2">
+      <h2>개별 실험 2회차</h2>
+      <p class="subtitle">야이야이 (개별 실험 2회차 페이지)</p>
+      <div class="controls"><button class="btn secondary" id="exp2-back">뒤로</button></div>
+    </section>
+
+    <section class="page" id="activity-exp3">
+      <h2>개별 실험 3회차</h2>
+      <p class="subtitle">야이야이 (개별 실험 3회차 페이지)</p>
+      <div class="controls"><button class="btn secondary" id="exp3-back">뒤로</button></div>
+    </section>
+
+    <section class="page" id="activity-exp4">
+      <h2>개별 실험 4회차</h2>
+      <p class="subtitle">야이야이 (개별 실험 4회차 페이지)</p>
+      <div class="controls"><button class="btn secondary" id="exp4-back">뒤로</button></div>
     </section>
 
     <!-- New participants list page -->
@@ -282,7 +365,6 @@
       <button id="overlayClose">닫기</button>
       <iframe id="overlayIfr" src="" title="fullscreen-iframe"></iframe>
     </div>
-
   </div>
 
   <!-- bottom nav -->
@@ -296,208 +378,464 @@
   <canvas id="confetti"></canvas>
 
   <script>
-    // --- utility to show arbitrary page sections ---
-    function hideAllPages(){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); }
+  // --- utility to show arbitrary page sections ---
+  function hideAllPages(){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); }
 
-    // initial state: splash1 visible, home header hidden until after splash
-    const homeHeader = document.getElementById('homeHeader');
-    const homeMain = document.getElementById('home');
-    const eventRoot = document.getElementById('event-root');
-    const morePage = document.getElementById('more');
-    const topbar = document.getElementById('topbar');
-    const centeredHeader = document.getElementById('centeredHeader');
-    const headerBanner = document.getElementById('headerBanner');
-    const headerSmall = document.getElementById('headerSmall');
+  // initial state: splash1 visible, home header hidden until after splash
+  const homeHeader = document.getElementById('homeHeader');
+  const homeMain = document.getElementById('home');
+  const eventRoot = document.getElementById('event-root');
+  const morePage = document.getElementById('more');
+  const topbar = document.getElementById('topbar');
+  const centeredHeader = document.getElementById('centeredHeader');
+  const headerBanner = document.getElementById('headerBanner');
+  const headerSmall = document.getElementById('headerSmall');
 
-    function showTopbar(show){
-      if(show){
-        topbar.style.display='flex';
-        document.body.classList.add('topbar-active');
-        centeredHeader.classList.remove('show');
-        // hide regular header while topbar is active to avoid double spacing
-        homeHeader.style.display='none';
-      } else {
-        topbar.style.display='none';
-        document.body.classList.remove('topbar-active');
-        centeredHeader.classList.add('show');
-        // show regular header on normal pages
-        homeHeader.style.display='flex';
-      }
+  function showTopbar(show){
+    if(show){
+      topbar.style.display='flex';
+      document.body.classList.add('topbar-active');
+      centeredHeader.classList.remove('show');
+      homeHeader.style.display='none';
+    } else {
+      topbar.style.display='none';
+      document.body.classList.remove('topbar-active');
+      centeredHeader.classList.add('show');
+      homeHeader.style.display='flex';
     }
+  }
 
-    // show splash1 initially
-    hideAllPages(); document.getElementById('splash1').classList.add('active'); homeHeader.style.display='none'; showTopbar(false);
+  // show splash1 initially
+  hideAllPages();
+  document.getElementById('splash1').classList.add('active');
+  homeHeader.style.display='none';
+  showTopbar(false);
 
-    // splash interactions
-    document.getElementById('splash1').addEventListener('click', ()=>{
-      hideAllPages(); document.getElementById('splash2').classList.add('active');
+  // splash interactions
+  document.getElementById('splash1').addEventListener('click', ()=>{
+    hideAllPages();
+    document.getElementById('splash2').classList.add('active');
+  });
+  document.getElementById('splash2').addEventListener('click', ()=>{
+    // show home
+    hideAllPages();
+    homeHeader.style.display='flex';
+    homeMain.classList.add('active');
+    // set nav active
+    setNav('home');
+    // ensure event-root hidden
+    eventRoot.style.display='none';
+    showTopbar(false);
+    headerBanner.style.display='none';
+    headerSmall.style.display='none';
+  });
+
+  // NAV
+  document.getElementById('nav-home').addEventListener('click', ()=>{
+    hideAllPages();
+    homeHeader.style.display='flex';
+    homeMain.classList.add('active');
+    setNav('home');
+    eventRoot.style.display='none';
+    showTopbar(false);
+    headerBanner.style.display='none';
+    headerSmall.style.display='none';
+  });
+
+  document.getElementById('nav-more').addEventListener('click', ()=>{
+    hideAllPages();
+    homeHeader.style.display='flex';
+    morePage.classList.add('active');
+    setNav('more');
+    eventRoot.style.display='none';
+    showTopbar(false);
+    headerBanner.style.display='none';
+    headerSmall.style.display='none';
+    refreshParticipantsUI();
+  });
+
+  document.getElementById('nav-event').addEventListener('click', ()=>{
+    hideAllPages();
+    homeHeader.style.display='none';
+    eventRoot.style.display='block';
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page1').classList.add('active');
+    setNav('event');
+    updateTopLocal(1);
+    showTopbar(true);
+    headerBanner.style.display='none';
+    headerSmall.style.display='none';
+  });
+
+  function setNav(which){
+    document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active'));
+    if(which==='home') document.getElementById('nav-home').classList.add('active');
+    if(which==='more') document.getElementById('nav-more').classList.add('active');
+    if(which==='event') document.getElementById('nav-event').classList.add('active');
+  }
+
+  // gallery image buttons: map to activity pages
+  document.querySelectorAll('.activity-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      const target = e.currentTarget.getAttribute('data-target');
+      if(!target) return;
+      hideAllPages();
+      // show the target activity page
+      const el = document.getElementById(target);
+      if(el){
+        el.classList.add('active');
+        // when navigating from home to activity, show header and set nav to more
+        homeHeader.style.display='flex';
+        setNav('more');
+        eventRoot.style.display='none';
+        showTopbar(false);
+        headerBanner.style.display='none';
+        headerSmall.style.display='none';
+      } else {
+        // fallback: open activity list
+        document.getElementById('activityList').classList.add('active');
+      }
     });
-    document.getElementById('splash2').addEventListener('click', ()=>{
-      // show home
-      hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active');
-      // set nav active
+  });
+
+  // ---------- Event flow logic with top step indicator ----------
+  const stepsEls = document.querySelectorAll('.step');
+  const progressLabel = document.getElementById('progressLabel');
+  function updateTopLocal(step){
+    stepsEls.forEach(el=>{
+      const s = Number(el.getAttribute('data-step'));
+      el.classList.remove('active','done');
+      if(step> s) el.classList.add('done');
+      if(step===s) el.classList.add('active');
+    });
+    document.getElementById('progressLabel').textContent = step > 0 ? `Step ${step} / 6` : ''
+  }
+
+  // Page1
+  const stuInput = document.getElementById('stuInput');
+  const p1next = document.getElementById('p1-next');
+  const p1prev = document.getElementById('p1-prev');
+  stuInput.addEventListener('input', ()=>{ p1next.disabled = !stuInput.value.trim(); });
+  p1next.addEventListener('click', ()=>{
+    localStorage.setItem('current_student', stuInput.value.trim());
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page2').classList.add('active');
+    updateTopLocal(2);
+  });
+  p1prev.addEventListener('click', ()=>{
+    hideAllPages();
+    homeHeader.style.display='flex';
+    homeMain.classList.add('active');
+    setNav('home');
+    updateTopLocal(0);
+    eventRoot.style.display='none';
+    showTopbar(false);
+    headerBanner.style.display='none';
+    headerSmall.style.display='none';
+  });
+
+  // Page2
+  const chk2 = document.getElementById('chk2');
+  const p2next = document.getElementById('p2-next');
+  const p2prev = document.getElementById('p2-prev');
+  chk2.addEventListener('change', ()=>{ p2next.disabled = !chk2.checked; });
+  p2prev.addEventListener('click', ()=>{
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page1').classList.add('active');
+    updateTopLocal(1);
+  });
+  p2next.addEventListener('click', ()=>{
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page3').classList.add('active');
+    updateTopLocal(3);
+  });
+
+  // Page3
+  const p3prev = document.getElementById('p3-prev');
+  const p3next = document.getElementById('p3-next');
+  p3prev.addEventListener('click', ()=>{
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page2').classList.add('active');
+    updateTopLocal(2);
+  });
+  p3next.addEventListener('click', ()=>{
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page4').classList.add('active');
+    updateTopLocal(4);
+  });
+
+  // Page4
+  const chk4 = document.getElementById('chk4');
+  const p4prev = document.getElementById('p4-prev');
+  const p4next = document.getElementById('p4-next');
+  chk4.addEventListener('change', ()=>{ p4next.disabled = !chk4.checked; });
+  p4prev.addEventListener('click', ()=>{
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page3').classList.add('active');
+    updateTopLocal(3);
+  });
+  p4next.addEventListener('click', ()=>{
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page5').classList.add('active');
+    updateTopLocal(5);
+  });
+
+  // Page5
+  const hrBefore = document.getElementById('hrBefore');
+  const hrAfter = document.getElementById('hrAfter');
+  const checkHR = document.getElementById('checkHR');
+  const hrText = document.getElementById('hrText');
+  const p5prev = document.getElementById('p5-prev');
+  const p5next = document.getElementById('p5-next');
+  checkHR.addEventListener('click', ()=>{
+    const b = Number(hrBefore.value);
+    const a = Number(hrAfter.value);
+    if(!Number.isFinite(b) || !Number.isFinite(a) || hrBefore.value === '' || hrAfter.value === ''){
+      hrText.textContent = '두 칸에 숫자를 모두 입력해주세요.';
+      return;
+    }
+    if(b < a) hrText.textContent = '심박수가 증가하셨네요! 긴장하셨나봐요....';
+    else if(b > a) hrText.textContent = '심박수가 감소하셨네요! 향이 마음에 드시나봐요.';
+    else hrText.textContent = '심박수에 변화가 없네요.';
+    p5next.disabled = false;
+  });
+  p5prev.addEventListener('click', ()=>{
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page4').classList.add('active');
+    updateTopLocal(4);
+  });
+  p5next.addEventListener('click', ()=>{
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page6').classList.add('active');
+    updateTopLocal(6);
+  });
+
+  // Page6 submit/cancel
+  const p6cancel = document.getElementById('p6-cancel');
+  const p6submit = document.getElementById('p6-submit');
+  const currentNameEl = document.getElementById('currentName');
+  function refreshCurrent(){ const v = localStorage.getItem('current_student') || stuInput.value || ''; currentNameEl.textContent = v; }
+  refreshCurrent();
+  p6cancel.addEventListener('click', ()=>{
+    if(confirm('지금까지의 데이터를 모두 삭제하고 학번/이름 입력 페이지로 돌아가시겠습니까?')){
+      localStorage.removeItem('current_student');
+      localStorage.removeItem('steam_participants');
+      hrBefore.value=''; hrAfter.value=''; hrText.textContent=''; stuInput.value=''; p1next.disabled = true; refreshParticipantsUI();
+      // go home
+      hideAllPages();
+      homeHeader.style.display='flex';
+      homeMain.classList.add('active');
       setNav('home');
-      // ensure event-root hidden
       eventRoot.style.display='none';
       showTopbar(false);
-      // hide banner/small on home as requested
-      headerBanner.style.display='none'; headerSmall.style.display='none';
-    });
-
-    // NAV
-    document.getElementById('nav-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; });
-    document.getElementById('nav-more').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); refreshParticipantsUI(); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; });
-    document.getElementById('nav-event').addEventListener('click', ()=>{ hideAllPages(); // show event root as a block-level section only when in event
-      homeHeader.style.display='none'; // hide normal header to prevent spacing clash
-      eventRoot.style.display='block';
-      // show first event page
-      eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-      document.getElementById('page1').classList.add('active'); setNav('event'); updateTopLocal(1); showTopbar(true);
-      // ensure banner/small hidden while in event
-      headerBanner.style.display='none'; headerSmall.style.display='none';
-    });
-
-    function setNav(which){ document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active')); if(which==='home') document.getElementById('nav-home').classList.add('active'); if(which==='more') document.getElementById('nav-more').classList.add('active'); if(which==='event') document.getElementById('nav-event').classList.add('active'); }
-
-    // gallery buttons to go to more (실험 페이지)
-    document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; }));
-
-    // ---------- Event flow logic with top step indicator ----------
-    const stepsEls = document.querySelectorAll('.step');
-    const progressLabel = document.getElementById('progressLabel');
-    function updateTopLocal(step){
-      stepsEls.forEach(el=>{ const s = Number(el.getAttribute('data-step')); el.classList.remove('active','done'); if(step> s) el.classList.add('done'); if(step===s) el.classList.add('active'); });
-      document.getElementById('progressLabel').textContent = step > 0 ? `Step ${step} / 6` : ''
+      headerBanner.style.display='none';
+      headerSmall.style.display='none';
     }
+  });
+  p6submit.addEventListener('click', ()=>{
+    const name = localStorage.getItem('current_student') || stuInput.value.trim();
+    if(!name){
+      alert('학번/이름을 입력하세요.');
+      eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+      document.getElementById('page1').classList.add('active');
+      return;
+    }
+    const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]');
+    arr.push({name, ts: Date.now()});
+    localStorage.setItem('steam_participants', JSON.stringify(arr));
+    refreshParticipantsUI();
+    playFanfare();
+    startConfetti();
+    setTimeout(()=>{
+      hideAllPages();
+      document.getElementById('donePage').classList.add('active');
+      eventRoot.style.display='none';
+      showTopbar(false);
+      headerBanner.style.display='none';
+      headerSmall.style.display='none';
+    },900);
+  });
+  document.getElementById('done-home').addEventListener('click', ()=>{
+    hideAllPages();
+    homeHeader.style.display='flex';
+    homeMain.classList.add('active');
+    setNav('home');
+    eventRoot.style.display='none';
+    showTopbar(false);
+    headerBanner.style.display='none';
+    headerSmall.style.display='none';
+  });
 
-    // Page1
-    const stuInput = document.getElementById('stuInput');
-    const p1next = document.getElementById('p1-next');
-    const p1prev = document.getElementById('p1-prev');
-    stuInput.addEventListener('input', ()=>{ p1next.disabled = !stuInput.value.trim(); });
-    p1next.addEventListener('click', ()=>{ localStorage.setItem('current_student', stuInput.value.trim()); // show page2
-      eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTopLocal(2);
-    });
-    p1prev.addEventListener('click', ()=>{ // back to home
-      hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); updateTopLocal(0); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
-    });
+  // MORE participants UI - now renders into participantsContainer when navigated
+  function refreshParticipantsUI(){
+    const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]');
+    const cont = document.getElementById('participantsContainer');
+    if(!cont) return;
+    if(arr.length===0) cont.innerHTML='<div class="card">참여한 학생이 없습니다.</div>';
+    else cont.innerHTML = arr.slice().reverse().map(x=>`<div class="card">${escapeHtml(x.name)}<div class="small">${new Date(x.ts).toLocaleString()}</div></div>`).join('');
+  }
+  function escapeHtml(s){ return (s||'').toString().replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":"&#39;"})[c]); }
 
-    // Page2
-    const chk2 = document.getElementById('chk2');
-    const p2next = document.getElementById('p2-next');
-    const p2prev = document.getElementById('p2-prev');
-    chk2.addEventListener('change', ()=>{ p2next.disabled = !chk2.checked; });
-    p2prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); updateTopLocal(1); });
-    p2next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTopLocal(3); });
+  // wire more page buttons
+  document.getElementById('more-experiment').addEventListener('click', ()=>{
+    // show 활동 상세보기 (activityList)
+    hideAllPages();
+    homeHeader.style.display='flex';
+    document.getElementById('activityList').classList.add('active');
+    setNav('more');
+    eventRoot.style.display='none';
+    showTopbar(false);
+    headerBanner.style.display='none';
+    headerSmall.style.display='none';
+  });
+  document.getElementById('more-participants').addEventListener('click', ()=>{
+    hideAllPages();
+    document.getElementById('participantsList').classList.add('active');
+    setNav('more');
+    eventRoot.style.display='none';
+    showTopbar(false);
+    headerBanner.style.display='none';
+    headerSmall.style.display='none';
+    refreshParticipantsUI();
+  });
 
-    // Page3
-    const p3prev = document.getElementById('p3-prev');
-    const p3next = document.getElementById('p3-next');
-    p3prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTopLocal(2); });
-    p3next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTopLocal(4); });
-
-    // Page4
-    const chk4 = document.getElementById('chk4');
-    const p4prev = document.getElementById('p4-prev');
-    const p4next = document.getElementById('p4-next');
-    chk4.addEventListener('change', ()=>{ p4next.disabled = !chk4.checked; });
-    p4prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTopLocal(3); });
-    p4next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page5').classList.add('active'); updateTopLocal(5); });
-
-    // Page5
-    const hrBefore = document.getElementById('hrBefore');
-    const hrAfter = document.getElementById('hrAfter');
-    const checkHR = document.getElementById('checkHR');
-    const hrText = document.getElementById('hrText');
-    const p5prev = document.getElementById('p5-prev');
-    const p5next = document.getElementById('p5-next');
-    checkHR.addEventListener('click', ()=>{
-      const b = Number(hrBefore.value);
-      const a = Number(hrAfter.value);
-      if(!Number.isFinite(b) || !Number.isFinite(a) || hrBefore.value === '' || hrAfter.value === ''){ hrText.textContent = '두 칸에 숫자를 모두 입력해주세요.'; return; }
-      if(b < a) hrText.textContent = '심박수가 증가하셨네요! 긴장하셨나봐요....';
-      else if(b > a) hrText.textContent = '심박수가 감소하셨네요! 향이 마음에 드시나봐요.';
-      else hrText.textContent = '심박수에 변화가 없네요.';
-      p5next.disabled = false;
-    });
-    p5prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTopLocal(4); });
-    p5next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page6').classList.add('active'); updateTopLocal(6); });
-
-    // Page6 submit/cancel
-    const p6cancel = document.getElementById('p6-cancel');
-    const p6submit = document.getElementById('p6-submit');
-    const currentNameEl = document.getElementById('currentName');
-    function refreshCurrent(){ const v = localStorage.getItem('current_student') || stuInput.value || ''; currentNameEl.textContent = v; }
-    refreshCurrent();
-    p6cancel.addEventListener('click', ()=>{
-      if(confirm('지금까지의 데이터를 모두 삭제하고 학번/이름 입력 페이지로 돌아가시겠습니까?')){
-        localStorage.removeItem('current_student');
-        localStorage.removeItem('steam_participants');
-        hrBefore.value=''; hrAfter.value=''; hrText.textContent='';
-        stuInput.value=''; p1next.disabled = true;
-        refreshParticipantsUI();
-        // go home
-        hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
+  // activity list -> open corresponding activity pages
+  document.querySelectorAll('#activityList .activity-item').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      const t = e.currentTarget.getAttribute('data-target');
+      if(!t) return;
+      hideAllPages();
+      const el = document.getElementById(t);
+      if(el){
+        el.classList.add('active');
+        homeHeader.style.display='flex';
+        setNav('more');
+        eventRoot.style.display='none';
+        showTopbar(false);
+        headerBanner.style.display='none';
+        headerSmall.style.display='none';
       }
     });
-    p6submit.addEventListener('click', ()=>{
-      const name = localStorage.getItem('current_student') || stuInput.value.trim();
-      if(!name){ alert('학번/이름을 입력하세요.'); // back to page1
-        eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); return; }
-      const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]');
-      arr.push({name, ts: Date.now()});
-      localStorage.setItem('steam_participants', JSON.stringify(arr));
-      refreshParticipantsUI(); playFanfare(); startConfetti(); setTimeout(()=>{ hideAllPages(); document.getElementById('donePage').classList.add('active'); // leaving event flow
-        eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
-      },900);
-    });
+  });
 
-    document.getElementById('done-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; });
+  // back buttons for activity pages -> go back to activity list
+  document.getElementById('activity-back').addEventListener('click', ()=>{
+    hideAllPages();
+    document.getElementById('more').classList.add('active');
+    setNav('more');
+  });
+  // individual activity page back buttons
+  const activityBackPairs = [
+    ['discussion-back','activityList'],
+    ['gwacheon-back','activityList'],
+    ['clubunion-back','activityList'],
+    ['localfestival-back','activityList'],
+    ['exp1-back','activityList'],
+    ['exp2-back','activityList'],
+    ['exp3-back','activityList'],
+    ['exp4-back','activityList']
+  ];
+  activityBackPairs.forEach(pair=>{
+    const btn = document.getElementById(pair[0]);
+    if(btn){
+      btn.addEventListener('click', ()=>{
+        hideAllPages();
+        document.getElementById(pair[1]).classList.add('active');
+        setNav('more');
+      });
+    }
+  });
 
-    // MORE participants UI - now renders into participantsContainer when navigated
-    function refreshParticipantsUI(){ const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]'); const cont = document.getElementById('participantsContainer'); if(!cont) return; if(arr.length===0) cont.innerHTML='<div class="card">참여한 학생이 없습니다.</div>'; else cont.innerHTML = arr.slice().reverse().map(x=>`<div class="card">${escapeHtml(x.name)}<div class="small">${new Date(x.ts).toLocaleString()}</div></div>`).join(''); }
-    function escapeHtml(s){ return (s||'').toString().replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":"&#39;"})[c]); }
+  document.getElementById('participants-back').addEventListener('click', ()=>{
+    hideAllPages();
+    morePage.classList.add('active');
+    setNav('more');
+  });
+  document.getElementById('info-back')?.addEventListener('click', ()=>{
+    hideAllPages();
+    morePage.classList.add('active');
+    setNav('more');
+  });
+  document.getElementById('exp-back')?.addEventListener('click', ()=>{
+    hideAllPages();
+    morePage.classList.add('active');
+    setNav('more');
+  });
 
-    // wire more page buttons
-    document.getElementById('more-experiment').addEventListener('click', ()=>{
-      hideAllPages(); document.getElementById('experimentDetail').classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
-    });
-    document.getElementById('more-participants').addEventListener('click', ()=>{
-      hideAllPages(); document.getElementById('participantsList').classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; refreshParticipantsUI();
-    });
-    document.getElementById('more-info-button').addEventListener('click', ()=>{
-      hideAllPages(); document.getElementById('moreInfo').classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none';
-    });
+  // overlay iframe maximize
+  const overlay = document.getElementById('overlayFrame');
+  const overlayIfr = document.getElementById('overlayIfr');
+  document.querySelectorAll('.maximizeBtn').forEach(b=> b.addEventListener('click', (e)=>{
+    const sel = e.currentTarget.getAttribute('data-iframe');
+    const ifr = document.querySelector(sel);
+    if(!ifr) return;
+    overlayIfr.src = ifr.src;
+    overlay.classList.add('active');
+  }));
+  document.getElementById('overlayClose').addEventListener('click', ()=>{ overlay.classList.remove('active'); overlayIfr.src=''; });
 
-    document.getElementById('participants-back').addEventListener('click', ()=>{ hideAllPages(); morePage.classList.add('active'); setNav('more'); });
-    document.getElementById('info-back').addEventListener('click', ()=>{ hideAllPages(); morePage.classList.add('active'); setNav('more'); });
-    document.getElementById('exp-back').addEventListener('click', ()=>{ hideAllPages(); morePage.classList.add('active'); setNav('more'); });
+  // ---------- Confetti ----------
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+  let particles = [];
+  function startConfetti(){
+    particles = [];
+    const count = 120;
+    for(let i=0;i<count;i++) particles.push(createParticle());
+    runConfetti();
+    setTimeout(()=>{ particles = []; },4200);
+  }
+  function createParticle(){
+    const w = Math.random()*10 + 6;
+    return { x: Math.random()*canvas.width, y: -Math.random()*canvas.height/2, w, h: w*0.6, vx: (Math.random()-0.5)*6, vy: Math.random()*4 + 2, rot: Math.random()*360, vrot: (Math.random()-0.5)*10, color: `hsl(${Math.random()*360},80%,60%)`, opacity: 1 };
+  }
+  function runConfetti(){
+    const step = ()=>{
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(const p of particles){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.06;
+        p.rot += p.vrot;
+        ctx.save();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.rot * Math.PI/180);
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+        ctx.restore();
+      }
+      if(particles.length) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
 
-    // overlay iframe maximize
-    const overlay = document.getElementById('overlayFrame');
-    const overlayIfr = document.getElementById('overlayIfr');
-    document.querySelectorAll('.maximizeBtn').forEach(b=> b.addEventListener('click', (e)=>{
-      const sel = e.currentTarget.getAttribute('data-iframe');
-      const ifr = document.querySelector(sel);
-      if(!ifr) return; overlayIfr.src = ifr.src; overlay.classList.add('active');
-    }));
-    document.getElementById('overlayClose').addEventListener('click', ()=>{ overlay.classList.remove('active'); overlayIfr.src=''; });
+  // fanfare
+  function playFanfare(){
+    try{
+      const a = new Audio();
+      a.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=';
+      a.play().catch(()=>{});
+    }catch(e){}
+  }
 
-    // ---------- Confetti ----------
-    const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d'); function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; } window.addEventListener('resize', resizeCanvas); resizeCanvas(); let particles = [];
-    function startConfetti(){ particles = []; const count = 120; for(let i=0;i<count;i++) particles.push(createParticle()); runConfetti(); setTimeout(()=>{ particles = []; },4200); }
-    function createParticle(){ const w = Math.random()*10 + 6; return { x: Math.random()*canvas.width, y: -Math.random()*canvas.height/2, w, h: w*0.6, vx: (Math.random()-0.5)*6, vy: Math.random()*4 + 2, rot: Math.random()*360, vrot: (Math.random()-0.5)*10, color: `hsl(${Math.random()*360},80%,60%)`, opacity: 1 }; }
-    function runConfetti(){ const step = ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); for(const p of particles){ p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.rot += p.vrot; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot * Math.PI/180); ctx.globalAlpha = p.opacity; ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore(); } if(particles.length) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+  // expose for debug
+  window.startEventFlow = ()=>{
+    hideAllPages();
+    homeHeader.style.display='none';
+    eventRoot.style.display='block';
+    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page1').classList.add('active');
+    setNav('event');
+    updateTopLocal(1);
+    showTopbar(true);
+  };
 
-    // fanfare
-    function playFanfare(){ try{ const a = new Audio(); a.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA='; a.play().catch(()=>{}); }catch(e){} }
-
-    // expose for debug
-    window.startEventFlow = ()=>{ hideAllPages(); homeHeader.style.display='none'; eventRoot.style.display='block'; eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); setNav('event'); updateTopLocal(1); showTopbar(true); };
-
-    // init
-    // ensure gallery buttons work
-    document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; }));
+  // ensure gallery buttons again (duplicate safe)
+  document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{}));
 
   </script>
 </body>
