@@ -96,7 +96,6 @@
   <p>수리과학융합부</p>
 </div> 
 
-// 기존 코드: homeHeader.style.display='none';
 if(document.getElementById('homeHeader')){
   document.getElementById('homeHeader').style.display = 'none';
 }
@@ -107,7 +106,6 @@ document.getElementById('splash2').addEventListener('click', ()=>{
   const homeMain = document.getElementById('home');
   if(homeMain) homeMain.classList.add('active');
 
-  // 안전하게 homeHeader 처리
   const homeHeader = document.getElementById('homeHeader');
   if(homeHeader) homeHeader.style.display='flex';
 
@@ -839,6 +837,7 @@ document.getElementById('splash2').addEventListener('click', ()=>{
   </script>
 </body>
 </html>
+
 
 
 
