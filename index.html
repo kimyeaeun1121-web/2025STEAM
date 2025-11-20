@@ -304,9 +304,17 @@
     </section>
 
     <!-- 각 활동별 개별 페이지들: 내용은 "야이야이" 로, 각각 다른 페이지로 만듦 -->
-    <section class="page" id="activity-discussion">
-      <h2>토론</h2>
-      <pre class="subtitle keep-format">토론 활동
+ <style>
+  p.subtitle {
+    white-space: pre-wrap;   /* 네가 입력한 줄바꿈, 띄어쓰기 그대로 보이게 */
+    word-break: break-word;  /* 모바일에서 줄 넘침 방지 */
+    line-height: 1.5;        /* 모바일에서 읽기 편한 줄 간격 */
+  }
+</style>
+
+<section class="page" id="activity-discussion">
+  <h2>토론</h2>
+  <p class="subtitle">토론 활동
 
 1. 활동 개요
 16명의 부원을 8명씩 두 팀으로 나누어, 1팀과 2팀으로 구성하여 토론 활동에 참여하였습니다.
@@ -1109,5 +1117,6 @@ d. 과일 전지 만들기 실험
   </script>
 </body>
 </html>
+
 
 
