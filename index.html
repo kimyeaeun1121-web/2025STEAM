@@ -71,7 +71,7 @@
   /* MORE page list style */
   .more-list{display:flex;flex-direction:column;gap:10px}
   .more-hero{font-size:20px;font-weight:800;color:var(--accent);padding:12px;border-radius:10px}
-  .more-item{padding:12px;border-radius:10px;background:#fff;border:1px solid #eef6ff;font-weight:700}
+  .more-item{padding:12px;border-radius:10px;background:#fff;border:1px solid #eef6eff;font-weight:700}
   .activity-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
   .activity-item{padding:10px;border-radius:10px;background:#fff;border:1px solid #eef6ff;font-weight:700}
   @media(min-width:420px){.container{max-width:420px;margin:0 auto}}
@@ -411,11 +411,8 @@
   showTopbar(false);
 
   // splash interactions
-  document.getElementById('splash1').addEventListener('click', ()=>{
-    hideAllPages();
-    document.getElementById('splash2').classList.add('active');
-  });
-  document.getElementById('splash2').addEventListener('click', ()=>{
+  document.getElementById('splash1').addEventListener('click', ()=>{ hideAllPages(); document.getElementById('splash2').classList.add('active'); });
+  document.getElementById('splash2').addEventListener('click', ()=>{ 
     // show home
     hideAllPages();
     homeHeader.style.display='flex';
@@ -430,41 +427,9 @@
   });
 
   // NAV
-  document.getElementById('nav-home').addEventListener('click', ()=>{
-    hideAllPages();
-    homeHeader.style.display='flex';
-    homeMain.classList.add('active');
-    setNav('home');
-    eventRoot.style.display='none';
-    showTopbar(false);
-    headerBanner.style.display='none';
-    headerSmall.style.display='none';
-  });
-
-  document.getElementById('nav-more').addEventListener('click', ()=>{
-    hideAllPages();
-    homeHeader.style.display='flex';
-    morePage.classList.add('active');
-    setNav('more');
-    eventRoot.style.display='none';
-    showTopbar(false);
-    headerBanner.style.display='none';
-    headerSmall.style.display='none';
-    refreshParticipantsUI();
-  });
-
-  document.getElementById('nav-event').addEventListener('click', ()=>{
-    hideAllPages();
-    homeHeader.style.display='none';
-    eventRoot.style.display='block';
-    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page1').classList.add('active');
-    setNav('event');
-    updateTopLocal(1);
-    showTopbar(true);
-    headerBanner.style.display='none';
-    headerSmall.style.display='none';
-  });
+  document.getElementById('nav-home').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; homeMain.classList.add('active'); setNav('home'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; });
+  document.getElementById('nav-more').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='flex'; morePage.classList.add('active'); setNav('more'); eventRoot.style.display='none'; showTopbar(false); headerBanner.style.display='none'; headerSmall.style.display='none'; refreshParticipantsUI(); });
+  document.getElementById('nav-event').addEventListener('click', ()=>{ hideAllPages(); homeHeader.style.display='none'; eventRoot.style.display='block'; eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); setNav('event'); updateTopLocal(1); showTopbar(true); headerBanner.style.display='none'; headerSmall.style.display='none'; });
 
   function setNav(which){
     document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.remove('active'));
@@ -473,17 +438,25 @@
     if(which==='event') document.getElementById('nav-event').classList.add('active');
   }
 
-  // gallery image buttons: map to activity pages
-  document.querySelectorAll('.activity-btn').forEach(btn=>{
+  // ---------- Fix: gallery cta buttons mapping to activity pages ----------
+  // mapping from data-target (home btns) to activity page ids
+  const homeToActivityMap = {
+    'page-gwacheon': 'activity-gwacheon',
+    'page-club-union': 'activity-clubunion',
+    'page-local-festival': 'activity-localfestival',
+    'page-exp1': 'activity-exp1',
+    'page-exp2': 'activity-exp2',
+    'page-exp3': 'activity-exp3',
+    'page-exp4': 'activity-exp4'
+  };
+  document.querySelectorAll('.cta-small').forEach(btn=>{
     btn.addEventListener('click', (e)=>{
-      const target = e.currentTarget.getAttribute('data-target');
-      if(!target) return;
+      const tgt = e.currentTarget.getAttribute('data-target');
+      const mapped = homeToActivityMap[tgt] || 'activityList';
       hideAllPages();
-      // show the target activity page
-      const el = document.getElementById(target);
+      const el = document.getElementById(mapped);
       if(el){
         el.classList.add('active');
-        // when navigating from home to activity, show header and set nav to more
         homeHeader.style.display='flex';
         setNav('more');
         eventRoot.style.display='none';
@@ -491,7 +464,6 @@
         headerBanner.style.display='none';
         headerSmall.style.display='none';
       } else {
-        // fallback: open activity list
         document.getElementById('activityList').classList.add('active');
       }
     });
@@ -514,13 +486,22 @@
   const stuInput = document.getElementById('stuInput');
   const p1next = document.getElementById('p1-next');
   const p1prev = document.getElementById('p1-prev');
+
+  // ---------- NEW: session variable to hold the name entered in current flow ----------
+  let currentSessionStudent = '';
+
   stuInput.addEventListener('input', ()=>{ p1next.disabled = !stuInput.value.trim(); });
+
   p1next.addEventListener('click', ()=>{
-    localStorage.setItem('current_student', stuInput.value.trim());
+    const val = stuInput.value.trim();
+    // store both in session variable and localStorage (localStorage may keep last value between visits)
+    currentSessionStudent = val;
+    localStorage.setItem('current_student', val);
     eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('page2').classList.add('active');
     updateTopLocal(2);
   });
+
   p1prev.addEventListener('click', ()=>{
     hideAllPages();
     homeHeader.style.display='flex';
@@ -538,46 +519,22 @@
   const p2next = document.getElementById('p2-next');
   const p2prev = document.getElementById('p2-prev');
   chk2.addEventListener('change', ()=>{ p2next.disabled = !chk2.checked; });
-  p2prev.addEventListener('click', ()=>{
-    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page1').classList.add('active');
-    updateTopLocal(1);
-  });
-  p2next.addEventListener('click', ()=>{
-    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page3').classList.add('active');
-    updateTopLocal(3);
-  });
+  p2prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page1').classList.add('active'); updateTopLocal(1); });
+  p2next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTopLocal(3); });
 
   // Page3
   const p3prev = document.getElementById('p3-prev');
   const p3next = document.getElementById('p3-next');
-  p3prev.addEventListener('click', ()=>{
-    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page2').classList.add('active');
-    updateTopLocal(2);
-  });
-  p3next.addEventListener('click', ()=>{
-    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page4').classList.add('active');
-    updateTopLocal(4);
-  });
+  p3prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page2').classList.add('active'); updateTopLocal(2); });
+  p3next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTopLocal(4); });
 
   // Page4
   const chk4 = document.getElementById('chk4');
   const p4prev = document.getElementById('p4-prev');
   const p4next = document.getElementById('p4-next');
   chk4.addEventListener('change', ()=>{ p4next.disabled = !chk4.checked; });
-  p4prev.addEventListener('click', ()=>{
-    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page3').classList.add('active');
-    updateTopLocal(3);
-  });
-  p4next.addEventListener('click', ()=>{
-    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page5').classList.add('active');
-    updateTopLocal(5);
-  });
+  p4prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page3').classList.add('active'); updateTopLocal(3); });
+  p4next.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page5').classList.add('active'); updateTopLocal(5); });
 
   // Page5
   const hrBefore = document.getElementById('hrBefore');
@@ -598,25 +555,33 @@
     else hrText.textContent = '심박수에 변화가 없네요.';
     p5next.disabled = false;
   });
-  p5prev.addEventListener('click', ()=>{
-    eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-    document.getElementById('page4').classList.add('active');
-    updateTopLocal(4);
-  });
+  p5prev.addEventListener('click', ()=>{ eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page4').classList.add('active'); updateTopLocal(4); });
   p5next.addEventListener('click', ()=>{
     eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('page6').classList.add('active');
     updateTopLocal(6);
+    // ---------- ensure page6 shows the name entered in page1 of THIS flow ----------
+    refreshCurrent();
   });
 
   // Page6 submit/cancel
   const p6cancel = document.getElementById('p6-cancel');
   const p6submit = document.getElementById('p6-submit');
   const currentNameEl = document.getElementById('currentName');
-  function refreshCurrent(){ const v = localStorage.getItem('current_student') || stuInput.value || ''; currentNameEl.textContent = v; }
+
+  // refreshCurrent now prefers session variable (the name typed on page1 in this flow)
+  function refreshCurrent(){
+    const sessionName = currentSessionStudent && currentSessionStudent.trim();
+    const stored = localStorage.getItem('current_student') || '';
+    const v = sessionName || stored || stuInput.value || '';
+    currentNameEl.textContent = v;
+  }
+  // call once to populate if there's already a stored name
   refreshCurrent();
+
   p6cancel.addEventListener('click', ()=>{
     if(confirm('지금까지의 데이터를 모두 삭제하고 학번/이름 입력 페이지로 돌아가시겠습니까?')){
+      currentSessionStudent = '';
       localStorage.removeItem('current_student');
       localStorage.removeItem('steam_participants');
       hrBefore.value=''; hrAfter.value=''; hrText.textContent=''; stuInput.value=''; p1next.disabled = true; refreshParticipantsUI();
@@ -631,8 +596,10 @@
       headerSmall.style.display='none';
     }
   });
+
   p6submit.addEventListener('click', ()=>{
-    const name = localStorage.getItem('current_student') || stuInput.value.trim();
+    // prefer name entered in this session; fall back to stored or input value
+    const name = (currentSessionStudent && currentSessionStudent.trim()) || localStorage.getItem('current_student') || stuInput.value.trim();
     if(!name){
       alert('학번/이름을 입력하세요.');
       eventRoot.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -642,6 +609,8 @@
     const arr = JSON.parse(localStorage.getItem('steam_participants')||'[]');
     arr.push({name, ts: Date.now()});
     localStorage.setItem('steam_participants', JSON.stringify(arr));
+    // keep last saved student for convenience but session var remains authoritative for this flow
+    localStorage.setItem('current_student', name);
     refreshParticipantsUI();
     playFanfare();
     startConfetti();
@@ -654,6 +623,7 @@
       headerSmall.style.display='none';
     },900);
   });
+
   document.getElementById('done-home').addEventListener('click', ()=>{
     hideAllPages();
     homeHeader.style.display='flex';
@@ -833,18 +803,6 @@
     showTopbar(true);
   };
 
-  // ensure gallery buttons again (duplicate safe)
-  document.querySelectorAll('.cta-small').forEach(btn=> btn.addEventListener('click', ()=>{}));
-
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
